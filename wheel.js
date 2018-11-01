@@ -1,8 +1,10 @@
 var service_bodies = [];
 var root = "https://tomato.na-bmlt.org/main_server/";
 
-$.getJSON(root + "client_interface/jsonp/?switcher=GetServiceBodies&callback=?", function(data) {
-    service_bodies = data;
+$(function() {
+    $.getJSON(root + "client_interface/jsonp/?switcher=GetServiceBodies&callback=?", function(data) {
+        service_bodies = data;
+    });
 });
 
 function search() {
