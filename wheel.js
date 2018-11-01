@@ -18,7 +18,7 @@ function search() {
 function getCoordinatesForAddress(address, callback) {
     console.log(address)
     if (address.length > 0) {
-        $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyC7fOaF7ng-XsWP7yfElwpV_1-jrxtgwKg&address=" + encodeURIComponent(address)
+        $.getJSON("https://maps.googleapis.com/maps/api/js?key=AIzaSyC7fOaF7ng-XsWP7yfElwpV_1-jrxtgwKg&address=" + encodeURIComponent(address)
             + "&components=country:us", function(data) {
             console.log(data)
             if (data["results"].length > 0) {
