@@ -11,16 +11,16 @@ html, body {
 }
 
 #search {
-    height:45px;
+    height:40px;
 }
 
 #title {
-    font-size: x-large;
+    font-size: 25px;
     font-family: Arial;
 }
 
 #criteria {
-    font-size: x-large;
+    font-size: 25px;
     font-family: Arial;
     border: 1px solid;
 }
