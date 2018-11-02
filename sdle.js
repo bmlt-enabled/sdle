@@ -61,10 +61,14 @@ function setMapInfo(pos) {
     infoWindow.setPosition(pos);
     getServiceBodyForCoordinates(pos.lat, pos.lng, function(data) {
         var serviceBodyDetails = getServiceBodyById(data[0]["service_body_bigint"]);
-        var content = "<b>" + serviceBodyDetails["name"] + "</b>";
-        content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
-        content += "<br>Helpline: <a href=tel:'" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
-        content += "<br>Root Server: <a href='" + data[0]["root_server_uri"] + "' target='_blank'>" + data[0]["root_server_uri"] + "</a>";
+        if (parseInt(data[0]["distance_in_miles"]) < 100) {
+            var content = "<b>" + serviceBodyDetails["name"] + "</b>";
+            content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
+            content += "<br>Helpline: <a href=tel:'" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
+            content += "<br>Root Server: <a href='" + data[0]["root_server_uri"] + "' target='_blank'>" + data[0]["root_server_uri"] + "</a>";
+        } else {
+            content = "<b>Not covered by the BMLT yet.</b>";
+        }
         infoWindow.setContent(content);
         infoWindow.open(map);
         map.setCenter(pos);
@@ -78,20 +82,6 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
         'Error: Your browser doesn\'t support geolocation.');
     infoWindow.open(map);
 }
-
-/*function getCoordinatesForAddress(address, callback) {
-    if (address.length > 0) {
-        $.getJSON("https://maps.googleapis.com/maps/api/js?key=AIzaSyC7fOaF7ng-XsWP7yfElwpV_1-jrxtgwKg&address=" + encodeURIComponent(address)
-            + "&components=country:us", function(data) {
-            if (data["results"].length > 0) {
-                callback({"latitude": data['results'][0]['geometry']['location']['lat'],
-                    "longitude": data['results'][0]['geometry']['location']['lng']});
-            }
-        })
-    } else {
-        callback(null);
-    }
-}*/
 
 function getServiceBodyById(id) {
     for (var service_body of service_bodies) {
