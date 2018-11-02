@@ -9,7 +9,7 @@ $(function() {
 });
 
 function getServiceBodyForCoordinates(latitude, longitude, callback) {
-    $.getJSON(root + "/client_interface/jsonp/?switcher=GetSearchResults&geo_width=-10&long_val=" + longitude + "&lat_val=" + latitude + "&callback=?", function (data) {
+    $.getJSON(root + "/client_interface/jsonp/?switcher=GetSearchResults&sort_results_by_distance=1&geo_width=-10&long_val=" + longitude + "&lat_val=" + latitude + "&callback=?", function (data) {
         callback(data);
     });
 
@@ -64,7 +64,7 @@ function setMapInfo(pos) {
         if (parseInt(data[0]["distance_in_miles"]) < 100) {
             var content = "<b>" + serviceBodyDetails["name"] + "</b>";
             content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
-            content += "<br>Helpline: <a href=tel:'" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
+            content += "<br>Helpline: <a href='tel:" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
             content += "<br>Root Server: <a href='" + data[0]["root_server_uri"] + "' target='_blank'>" + data[0]["root_server_uri"] + "</a>";
         } else {
             content = "<b>Not covered by the BMLT yet.</b>";
