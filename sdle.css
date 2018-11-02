@@ -24,3 +24,12 @@ input[type="button"] {
     font-size: 40px;
     font-family: Arial;
 }
+
+#contact {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
+    font-size: x-large;
+    font-family: Arial;
+}
