@@ -12,6 +12,12 @@ function getServiceBodyForCoordinates(latitude, longitude, callback) {
     $.getJSON(root + "/client_interface/jsonp/?switcher=GetSearchResults&geo_width=-10&long_val=" + longitude + "&lat_val=" + latitude + "&callback=?", function (data) {
         callback(data);
     });
+
+    document.getElementById("criteria").addEventListener("keydown", function (e) {
+        if (e.keyCode === 13) {
+            search();
+        }
+    });
 }
 
 function search() {
