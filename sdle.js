@@ -1,4 +1,4 @@
-var map, infoWindow, geoCoder;
+var map, infoWindow, geocoder;
 var service_bodies = [];
 var root = "https://tomato.na-bmlt.org/main_server/";
 
