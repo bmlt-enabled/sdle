@@ -22,11 +22,13 @@ html, body {
 #criteria {
     font-size: x-large;
     font-family: Arial;
+    border: 1px solid;
 }
 
 input[type="button"] {
     font-size: 25px;
     font-family: Arial;
+    border: 1px solid;
 }
 
 #contact {
