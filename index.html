@@ -1,9 +1,18 @@
-<html xmlns="http://www.w3.org/1999/html">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>sdle</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="sdle.css">
+</head>
 <body>
-    Enter Location: <input type="text" id="searchterm" style="font-size: 30px;"/>
-    <input type="button" onclick="search();return false;" value="Find Service Body" style="font-size: 30px;">
-    <div id="response"></div>
+<div id="map"></div>
+<script type="text/javascript" src="jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="sdle.js"></script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBePE-Yi2bDdYKie76jhjXQm1dpm1v7lr4&callback=initMap">
+</script>
 </body>
 </html>
-<script type="text/javascript" src="jquery-3.3.1.min.js"></script>
-<script type="text/javascript" src="wheel.js"></script>
+
