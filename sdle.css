@@ -14,3 +14,13 @@ html, body {
     font-size: x-large;
     font-family: Arial;
 }
+
+#criteria {
+    font-size: x-large;
+    font-family: Arial;
+}
+
+input[type="button"] {
+    font-size: 40px;
+    font-family: Arial;
+}
