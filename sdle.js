@@ -1,4 +1,4 @@
-var map, infoWindow;
+var map, infoWindow, geoCoder;
 var service_bodies = [];
 var root = "https://tomato.na-bmlt.org/main_server/";
 
@@ -14,30 +14,33 @@ function getServiceBodyForCoordinates(latitude, longitude, callback) {
     });
 }
 
+function search() {
+    geocoder.geocode({'address': $("#criteria").val() }, function(results, status) {
+        if (status === "OK") {
+            setMapInfo(pos = {
+                lat: results[0].geometry.location.lat(),
+                lng: results[0].geometry.location.lng()
+            });
+        } else {
+            alert("Couldn't find address.");
+        }
+    });
+}
+
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: -34.397, lng: 150.644},
         zoom: 6
     });
     infoWindow = new google.maps.InfoWindow;
+    geocoder = new google.maps.Geocoder;
 
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
+            setMapInfo({
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
-            };
-
-            infoWindow.setPosition(pos);
-            getServiceBodyForCoordinates(pos.lat, pos.lng, function(data) {
-                var serviceBodyDetails = getServiceBodyById(data[0]["service_body_bigint"]);
-                var content = "<b>" + serviceBodyDetails["name"] + "</b>";
-                content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
-                content += "<br>Helpline: <a href=tel:'" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
-                infoWindow.setContent(content);
-                infoWindow.open(map);
-                map.setCenter(pos);
             });
         }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
@@ -46,6 +49,20 @@ function initMap() {
         // Browser doesn't support Geolocation
         handleLocationError(false, infoWindow, map.getCenter());
     }
+}
+
+function setMapInfo(pos) {
+    infoWindow.setPosition(pos);
+    getServiceBodyForCoordinates(pos.lat, pos.lng, function(data) {
+        var serviceBodyDetails = getServiceBodyById(data[0]["service_body_bigint"]);
+        var content = "<b>" + serviceBodyDetails["name"] + "</b>";
+        content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
+        content += "<br>Helpline: <a href=tel:'" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
+        content += "<br>Root Server: <a href='" + data[0]["root_server_uri"] + "' target='_blank'>" + data[0]["root_server_uri"] + "</a>";
+        infoWindow.setContent(content);
+        infoWindow.open(map);
+        map.setCenter(pos);
+    });
 }
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
