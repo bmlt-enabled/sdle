@@ -26,10 +26,10 @@ input[type="button"] {
 }
 
 #contact {
-    position: absolute;
+    /*position: absolute;
     top: 0;
     right: 0;
-    border: 0;
-    font-size: x-large;
+    border: 0;*/
+    font-size: large;
     font-family: Arial;
 }
