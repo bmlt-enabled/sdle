@@ -36,12 +36,14 @@ function search() {
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: -34.397, lng: 150.644},
-        zoom: 8
+        zoom: 8,
+        draggableCursor: 'crosshair'
     });
     infoWindow = new google.maps.InfoWindow;
     geocoder = new google.maps.Geocoder;
 
     google.maps.event.addListener(map,'click',function(e) {
+        infoWindow.close(map);
         setMapInfo({
             lat: e.latLng.lat(),
             lng: e.latLng.lng()
