@@ -41,6 +41,13 @@ function initMap() {
     infoWindow = new google.maps.InfoWindow;
     geocoder = new google.maps.Geocoder;
 
+    google.maps.event.addListener(map,'click',function(e) {
+        setMapInfo({
+            lat: e.latLng.lat(),
+            lng: e.latLng.lng()
+        });
+    });
+
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
