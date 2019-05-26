@@ -20,6 +20,14 @@ function getServiceBodyForCoordinates(latitude, longitude, callback) {
     });
 }
 
+function getMeetingsForServiceBody(id, recurse, callback) {
+    var url = "/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=latitude,longitude&services[]=" + id;
+    if (recurse) url += "&recursive=1";
+    $.getJSON(root + url + "&callback=?", function (data) {
+        callback(data);
+    });
+}
+
 function search() {
     geocoder.geocode({'address': $("#criteria").val() }, function(results, status) {
         if (status === "OK") {
@@ -72,7 +80,7 @@ function setMapInfo(pos) {
         var serviceBodyDetails = getServiceBodyById(data[0]["service_body_bigint"]);
         var parentServiceBody = getServiceBodyById(serviceBodyDetails['parent_id']);
         if (parseInt(data[0]["distance_in_miles"]) < 100) {
-            var content = "<b>" + serviceBodyDetails["name"] + "</b> (" + parentServiceBody['name'] + ")";
+            var content = "<b><a href='javascript:drawServiceBody(" + serviceBodyDetails['id'] + ", false);'>" + serviceBodyDetails["name"] + "</a></b> (<a href='javascript:drawServiceBody(" + serviceBodyDetails['parent_id'] + ", true);'>" + parentServiceBody['name'] + "</a>)";
             content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
             content += "<br>Helpline: <a href='tel:" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
             content += "<br>Root Server: <a href='" + data[0]["root_server_uri"] + "' target='_blank'>" + data[0]["root_server_uri"] + "</a>";
@@ -82,6 +90,31 @@ function setMapInfo(pos) {
         infoWindow.setContent(content);
         infoWindow.open(map);
         map.setCenter(pos);
+    });
+}
+
+function drawServiceBody(id, recurse) {
+    var service_bodies_coords = [];
+    getMeetingsForServiceBody(id, recurse, function(data) {
+        for (var i = 0; i < data.length; i++) {
+            var meeting = data[i];
+            service_bodies_coords.push({
+                lat: parseFloat(meeting.latitude), lng: parseFloat(meeting.longitude)
+            })
+        }
+
+        //service_bodies_coords.push(service_bodies_coords[0]);
+
+        // Construct the polygon.
+        var serviceBodyPolygon = new google.maps.Polygon({
+            paths: service_bodies_coords,
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35
+        });
+        serviceBodyPolygon.setMap(map);
     });
 }
 
