@@ -70,8 +70,9 @@ function setMapInfo(pos) {
     infoWindow.setPosition(pos);
     getServiceBodyForCoordinates(pos.lat, pos.lng, function(data) {
         var serviceBodyDetails = getServiceBodyById(data[0]["service_body_bigint"]);
+        var parentServiceBody = getServiceBodyById(serviceBodyDetails['parent_id']);
         if (parseInt(data[0]["distance_in_miles"]) < 100) {
-            var content = "<b>" + serviceBodyDetails["name"] + "</b>";
+            var content = "<b>" + serviceBodyDetails["name"] + "</b> (" + parentServiceBody['name'] + ")";
             content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
             content += "<br>Helpline: <a href='tel:" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
             content += "<br>Root Server: <a href='" + data[0]["root_server_uri"] + "' target='_blank'>" + data[0]["root_server_uri"] + "</a>";
@@ -93,7 +94,7 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 }
 
 function getServiceBodyById(id) {
-    for (var service_body of service_bodies) {
-        if (service_body["id"] === id) return service_body;
+    for (var i = 0; i < service_bodies.length; i++) {
+        if (service_bodies[i]["id"] === id) return service_bodies[i];
     }
 }
