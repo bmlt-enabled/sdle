@@ -1,6 +1,7 @@
 var map, infoWindow, geocoder;
 var service_bodies = [];
 var root = "https://tomato.na-bmlt.org/main_server/";
+var radius_to_miles_ratio = 1609.3;
 
 $(function() {
     $.getJSON(root + "client_interface/jsonp/?switcher=GetServiceBodies&callback=?", function(data) {
@@ -93,36 +94,65 @@ function setMapInfo(pos) {
     });
 }
 
+function getDrawOption() {
+    var radios = document.getElementsByName('draw-options-radio');
+    for (var i = 0, length = radios.length; i < length; i++) {
+        if (radios[i].checked) {
+            return radios[i].value;
+        }
+    }
+}
+
 function drawServiceBody(id, recurse) {
+    var drawOption = getDrawOption();
     var service_bodies_coords = [];
     var bounds = new google.maps.LatLngBounds();
-    getMeetingsForServiceBody(id, recurse, function(data) {
-        for (var i = 0; i < data.length; i++) {
-            var meeting = data[i];
-            var LatLng = new google.maps.LatLng(meeting.latitude, meeting.longitude);
-            service_bodies_coords.push(LatLng);
-            bounds.extend(LatLng);
+    getMeetingsForServiceBody(id, recurse, function (data) {
+        if (drawOption === "polygon") {
+            for (var i = 0; i < data.length; i++) {
+                var meeting = data[i];
+                var LatLng = new google.maps.LatLng(meeting.latitude, meeting.longitude);
+                service_bodies_coords.push(LatLng);
+                bounds.extend(LatLng);
+            }
+
+            var centerPt = bounds.getCenter();
+            service_bodies_coords.sort(function (a, b) {
+                var bearA = google.maps.geometry.spherical.computeHeading(centerPt, a);
+                var bearB = google.maps.geometry.spherical.computeHeading(centerPt, b);
+                return (bearA - bearB);
+            });
+
+            // Construct the polygon.
+            var serviceBodyPolygon = new google.maps.Polygon({
+                paths: service_bodies_coords,
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#FF0000',
+                fillOpacity: 0.35
+            });
+
+            serviceBodyPolygon.setMap(map);
+        } else if (drawOption === "circles") {
+            for (var i = 0; i < data.length; i++) {
+                var meeting = data[i];
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: new google.maps.LatLng(meeting.latitude, meeting.longitude),
+                    //title: 'Some location'
+                });
+
+                var circle = new google.maps.Circle({
+                    map: map,
+                    radius: parseFloat($("#willingness").val()) * radius_to_miles_ratio,
+                    fillColor: 'lightblue',
+                    strokeWeight: 0.5,
+                    fillOpacity: 0.05,
+                });
+                circle.bindTo('center', marker, 'position');
+            }
         }
-
-        var centerPt = bounds.getCenter();
-        service_bodies_coords.sort(function(a, b) {
-            var bearA = google.maps.geometry.spherical.computeHeading(centerPt, a);
-            var bearB = google.maps.geometry.spherical.computeHeading(centerPt, b);
-            console.log(bearA + ":" + bearB);
-            return (bearA - bearB);
-        });
-
-        // Construct the polygon.
-        var serviceBodyPolygon = new google.maps.Polygon({
-            paths: service_bodies_coords,
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.35
-        });
-
-        serviceBodyPolygon.setMap(map);
     });
 }
 
