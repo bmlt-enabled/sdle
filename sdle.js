@@ -138,6 +138,7 @@ function drawServiceBody(id, recurse) {
             for (var i = 0; i < data.length; i++) {
                 var meeting = data[i];
                 var marker = new google.maps.Marker({
+                    icon: 'blank.png',
                     map: map,
                     position: new google.maps.LatLng(meeting.latitude, meeting.longitude),
                     //title: 'Some location'
