@@ -139,23 +139,12 @@ function drawServiceBody(id, recurse) {
 
             serviceBodyPolygon.setMap(map);
         } else if (drawOption === "circles") {
-            for (var i = 0; i < data.length; i++) {
-                var meeting = data[i];
+            for (var j = 0; j < data.length; j++) {
+                var meeting = data[j];
                 var marker = new google.maps.Marker({
                     map: map,
                     position: new google.maps.LatLng(meeting.latitude, meeting.longitude),
                 });
-
-                if ($('#meeting-markers-visible-checkbox').is(":checked")) {
-                    var content = "<b>" + meeting.meeting_name + " (ID: " + meeting.id_bigint + ")" + "</b>";
-                    content += "<br/>" + meeting.location_street;
-                    content += "<br/>" + meeting.location_municipality + ", " + meeting.location_province;
-
-                    var infowindow = new google.maps.InfoWindow ( { content: content });
-                    marker.addListener ( 'click', function() { infowindow.open ( this.mapObject, marker ); });
-                } else {
-                    marker.setIcon('blank.png');
-                }
 
                 var circle = new google.maps.Circle({
                     map: map,
@@ -165,8 +154,27 @@ function drawServiceBody(id, recurse) {
                     fillOpacity: 0.05,
                 });
                 circle.bindTo('center', marker, 'position');
+
+                if ($('#meeting-markers-visible-checkbox').is(":checked")) {
+                    var message = "<b>" + meeting.meeting_name + " (ID: " + meeting.id_bigint + ")" + "</b>";
+                    message += "<br/>" + meeting.location_street;
+                    message += "<br/>" + meeting.location_municipality + ", " + meeting.location_province;
+                    marker.setTitle(meeting.id_bigint);
+                    addMeetingInfoWindow(marker, message);
+                } else {
+                    marker.setIcon('blank.png');
+                }
             }
         }
+    });
+}
+
+function addMeetingInfoWindow(marker, message) {
+    var meetingInfoWindow = new google.maps.InfoWindow({
+        content: message
+    });
+    google.maps.event.addListener(marker,'click', function() {
+        meetingInfoWindow.open (map, marker);
     });
 }
 
