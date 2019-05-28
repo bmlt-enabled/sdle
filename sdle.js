@@ -22,7 +22,11 @@ function getServiceBodyForCoordinates(latitude, longitude, callback) {
 }
 
 function getMeetingsForServiceBody(id, recurse, callback) {
-    var url = "/client_interface/jsonp/?switcher=GetSearchResults&data_field_key=latitude,longitude&services[]=" + id;
+    var url = "/client_interface/jsonp/?switcher=GetSearchResults&services[]=" + id + "&data_field_key=latitude,longitude";
+    if ($('#meeting-markers-visible-checkbox').is(":checked")) {
+        url += ',meeting_name,location_street,location_province,location_municipality,id_bigint';
+    }
+
     if (recurse) url += "&recursive=1";
     $.getJSON(root + url + "&callback=?", function (data) {
         callback(data);
@@ -138,11 +142,20 @@ function drawServiceBody(id, recurse) {
             for (var i = 0; i < data.length; i++) {
                 var meeting = data[i];
                 var marker = new google.maps.Marker({
-                    icon: 'blank.png',
                     map: map,
                     position: new google.maps.LatLng(meeting.latitude, meeting.longitude),
-                    //title: 'Some location'
                 });
+
+                if ($('#meeting-markers-visible-checkbox').is(":checked")) {
+                    var content = "<b>" + meeting.meeting_name + " (ID: " + meeting.id_bigint + ")" + "</b>";
+                    content += "<br/>" + meeting.location_street;
+                    content += "<br/>" + meeting.location_municipality + ", " + meeting.location_province;
+
+                    var infowindow = new google.maps.InfoWindow ( { content: content });
+                    marker.addListener ( 'click', function() { infowindow.open ( this.mapObject, marker ); });
+                } else {
+                    marker.setIcon('blank.png');
+                }
 
                 var circle = new google.maps.Circle({
                     map: map,
