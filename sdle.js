@@ -85,7 +85,7 @@ function setMapInfo(pos) {
         var serviceBodyDetails = getServiceBodyById(data[0]["service_body_bigint"]);
         var parentServiceBody = serviceBodyDetails['parent_id'] > 0 ? getServiceBodyById(serviceBodyDetails['parent_id']) : { name: "no parent", id: -1 }
         if (parseInt(data[0]["distance_in_miles"]) < 100) {
-            var content = "<b><a href='javascript:drawServiceBody(" + serviceBodyDetails['id'] + ", false);'>" + serviceBodyDetails["name"] + "</a></b> (<a href='javascript:drawServiceBody(" + serviceBodyDetails['parent_id'] + ", true);'>" + parentServiceBody['name'] + "</a>)";
+            var content = "<b><a href='javascript:drawServiceBody(" + serviceBodyDetails['id'] + ", false);'>" + serviceBodyDetails["name"] + "</a></b>" + (parentServiceBody['id'] > -1 ? "(<a href='javascript:drawServiceBody(" + serviceBodyDetails['parent_id'] + ", true);'>" + parentServiceBody['name'] + "</a>)" : "");
             content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
             content += "<br>Helpline: <a href='tel:" + serviceBodyDetails["helpline"].split("|")[0] + "' target='_blank'>" + serviceBodyDetails["helpline"].split("|")[0] + "</a>";
             content += "<br>Root Server: <a href='" + data[0]["root_server_uri"] + "' target='_blank'>" + data[0]["root_server_uri"] + "</a>";
