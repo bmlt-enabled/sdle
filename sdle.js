@@ -83,7 +83,7 @@ function setMapInfo(pos) {
     infoWindow.setPosition(pos);
     getServiceBodyForCoordinates(pos.lat, pos.lng, function(data) {
         var serviceBodyDetails = getServiceBodyById(data[0]["service_body_bigint"]);
-        var parentServiceBody = getServiceBodyById(serviceBodyDetails['parent_id']);
+        var parentServiceBody = serviceBodyDetails['parent_id'] > 0 ? getServiceBodyById(serviceBodyDetails['parent_id']) : { name: "no parent", id: -1 }
         if (parseInt(data[0]["distance_in_miles"]) < 100) {
             var content = "<b><a href='javascript:drawServiceBody(" + serviceBodyDetails['id'] + ", false);'>" + serviceBodyDetails["name"] + "</a></b> (<a href='javascript:drawServiceBody(" + serviceBodyDetails['parent_id'] + ", true);'>" + parentServiceBody['name'] + "</a>)";
             content += "<br>Website: <a href='" + serviceBodyDetails["url"] + "' target='_blank'>" + serviceBodyDetails["url"] + "</a>";
