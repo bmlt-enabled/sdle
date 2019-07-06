@@ -2,6 +2,7 @@ var map, infoWindow, geocoder;
 var service_bodies = [];
 var root = "https://tomato.na-bmlt.org/main_server/";
 var radius_to_miles_ratio = 1609.3;
+var map_objects = [];
 
 $(function() {
     $.getJSON(root + "client_interface/jsonp/?switcher=GetServiceBodies&callback=?", function(data) {
@@ -55,7 +56,7 @@ function initMap() {
     infoWindow = new google.maps.InfoWindow;
     geocoder = new google.maps.Geocoder;
 
-    google.maps.event.addListener(map,'click',function(e) {
+    google.maps.event.addDomListener(map,'click',function(e) {
         infoWindow.close(map);
         setMapInfo({
             lat: e.latLng.lat(),
@@ -137,6 +138,7 @@ function drawServiceBody(id, recurse) {
                 fillOpacity: 0.5
             });
 
+            addToMapObjectCollection(serviceBodyPolygon);
             serviceBodyPolygon.setMap(map);
         } else if (drawOption === "circles") {
             for (var j = 0; j < data.length; j++) {
@@ -146,6 +148,8 @@ function drawServiceBody(id, recurse) {
                     position: new google.maps.LatLng(meeting.latitude, meeting.longitude),
                 });
 
+                addToMapObjectCollection(marker);
+
                 var circle = new google.maps.Circle({
                     map: map,
                     radius: parseFloat($("#willingness").val()) * radius_to_miles_ratio,
@@ -154,6 +158,7 @@ function drawServiceBody(id, recurse) {
                     fillOpacity: 0.05,
                 });
                 circle.bindTo('center', marker, 'position');
+                addToMapObjectCollection(circle);
 
                 if ($('#meeting-markers-visible-checkbox').is(":checked")) {
                     var message = "<b>" + meeting.meeting_name + " (ID: " + meeting.id_bigint + ")" + "</b>";
@@ -169,11 +174,26 @@ function drawServiceBody(id, recurse) {
     });
 }
 
+function addToMapObjectCollection(obj) {
+    map_objects.push(obj);
+}
+
+function clearAllMapObjects() {
+    while (map_objects.length > 0) {
+        map_objects[0].setMap(null);
+        map_objects.splice(0, 1);
+    }
+
+    infoWindow.close();
+    document.getElementById('criteria').value = '';
+    document.getElementById('meeting-markers-visible-checkbox').checked = false;
+}
+
 function addMeetingInfoWindow(marker, message) {
     var meetingInfoWindow = new google.maps.InfoWindow({
         content: message
     });
-    google.maps.event.addListener(marker,'click', function() {
+    google.maps.event.addDomListener(marker,'click', function() {
         meetingInfoWindow.open (map, marker);
     });
 }
