@@ -24,7 +24,7 @@ function getServiceBodyForCoordinates(latitude, longitude, callback) {
 
 function getMeetingsForServiceBody(id, recurse, callback) {
     var url = "/client_interface/jsonp/?switcher=GetSearchResults&services[]=" + id + "&data_field_key=latitude,longitude";
-    if ($('#meeting-markers-visible-checkbox').is(":checked")) {
+    if (getDrawOption() === "markers") {
         url += ',meeting_name,location_street,location_province,location_municipality,id_bigint';
     }
 
@@ -143,9 +143,13 @@ function drawServiceBody(id, recurse) {
         } else if (drawOption === "circles") {
             for (var j = 0; j < data.length; j++) {
                 var meeting = data[j];
+
                 var marker = new google.maps.Marker({
                     map: map,
                     position: new google.maps.LatLng(meeting.latitude, meeting.longitude),
+                    icon: {
+                        url: "blank.png"
+                    }
                 });
 
                 addToMapObjectCollection(marker);
@@ -159,16 +163,27 @@ function drawServiceBody(id, recurse) {
                 });
                 circle.bindTo('center', marker, 'position');
                 addToMapObjectCollection(circle);
+            }
+        } else if (drawOption === "markers") {
+            var marker_url = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+            for (var j = 0; j < data.length; j++) {
+                var meeting = data[j];
 
-                if ($('#meeting-markers-visible-checkbox').is(":checked")) {
-                    var message = "<b>" + meeting.meeting_name + " (ID: " + meeting.id_bigint + ")" + "</b>";
-                    message += "<br/>" + meeting.location_street;
-                    message += "<br/>" + meeting.location_municipality + ", " + meeting.location_province;
-                    marker.setTitle(meeting.id_bigint);
-                    addMeetingInfoWindow(marker, message);
-                } else {
-                    marker.setIcon('blank.png');
-                }
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: new google.maps.LatLng(meeting.latitude, meeting.longitude),
+                    icon: {
+                        url: marker_url
+                    }
+                });
+
+                addToMapObjectCollection(marker);
+
+                var message = "<b>" + meeting.meeting_name + " (ID: " + meeting.id_bigint + ")" + "</b>";
+                message += "<br/>" + meeting.location_street;
+                message += "<br/>" + meeting.location_municipality + ", " + meeting.location_province;
+                marker.setTitle(meeting.id_bigint);
+                addMeetingInfoWindow(marker, message);
             }
         }
     });
@@ -186,7 +201,6 @@ function clearAllMapObjects() {
 
     infoWindow.close();
     document.getElementById('criteria').value = '';
-    document.getElementById('meeting-markers-visible-checkbox').checked = false;
 }
 
 function addMeetingInfoWindow(marker, message) {
