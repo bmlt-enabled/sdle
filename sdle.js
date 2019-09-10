@@ -165,7 +165,7 @@ function drawServiceBody(id, recurse) {
                 addToMapObjectCollection(circle);
             }
         } else if (drawOption === "markers") {
-            var marker_url = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+            var marker_url = "images/red_dot.png";
             for (var j = 0; j < data.length; j++) {
                 var meeting = data[j];
 
