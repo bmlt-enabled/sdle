@@ -3,6 +3,11 @@ var service_bodies = [];
 var root = "https://tomato.na-bmlt.org/main_server/";
 var radius_to_miles_ratio = 1609.3;
 var map_objects = [];
+var kml = {
+    popdensity: [
+        'us/alabama.xml'
+    ]
+};
 
 $(function() {
     $.getJSON(root + "client_interface/jsonp/?switcher=GetServiceBodies&callback=?", function(data) {
@@ -184,6 +189,20 @@ function drawServiceBody(id, recurse) {
                 message += "<br/>" + meeting.location_municipality + ", " + meeting.location_province;
                 marker.setTitle(meeting.id_bigint);
                 addMeetingInfoWindow(marker, message);
+            }
+
+
+        }
+
+        if ($('#data-layers-popdensity-enabled').is(":checked")) {
+            for (var l = 0; l < this.kml.popdensity.length; l++) {
+                var kml = new google.maps.KmlLayer({
+                 url: window.location.href + 'layers/popdensity/' + this.kml.popdensity[l],
+                 map: map,
+                 preserveViewport: true,
+                });
+
+                addToMapObjectCollection(kml);
             }
         }
     });
