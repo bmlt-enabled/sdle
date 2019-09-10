@@ -6,7 +6,13 @@ var map_objects = [];
 var map_customs = [];
 var kml = {
     popdensity: [
-        'us/alabama.xml'
+        'us/alabama.xml',
+        'us/connecticut.xml',
+        'us/florida.xml',
+        'us/massachusetts.xml',
+        'us/rhode-island.xml',
+        'us/tennessee.xml'
+        
     ]
 };
 
