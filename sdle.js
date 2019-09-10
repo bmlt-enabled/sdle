@@ -11,8 +11,7 @@ var kml = {
         'us/florida.xml',
         'us/massachusetts.xml',
         'us/rhode-island.xml',
-        'us/tennessee.xml'
-        
+        'us/tennessee.xml',
     ]
 };
 
@@ -201,12 +200,13 @@ function drawServiceBody(id, recurse) {
 
         }
 
+        clearCustoms();
         if ($('#data-layers-popdensity-enabled').is(":checked")) {
             for (var l = 0; l < this.kml.popdensity.length; l++) {
                 var kml = new google.maps.KmlLayer({
-                 url: window.location.href + 'layers/popdensity/' + this.kml.popdensity[l],
-                 map: map,
-                 preserveViewport: true,
+                    url: window.location.href + 'layers/popdensity/' + this.kml.popdensity[l],
+                    map: map,
+                    preserveViewport: true,
                 });
 
                 addToMapObjectCollection(kml);
@@ -237,18 +237,21 @@ function addToMapObjectCollection(obj) {
     map_objects.push(obj);
 }
 
-function clearAllMapObjects() {
+function clearCustoms() {
     while (map_customs.length > 0) {
         var element = document.getElementById(map_customs[0].id);
         element.parentNode.removeChild(element);
         map_customs.splice(0, 1);
     }
+}
 
+function clearAllMapObjects() {
     while (map_objects.length > 0) {
         map_objects[0].setMap(null);
         map_objects.splice(0, 1);
     }
 
+    clearCustoms();
     infoWindow.close();
     document.getElementById('criteria').value = '';
 }
