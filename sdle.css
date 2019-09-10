@@ -12,7 +12,6 @@ html, body {
     width: 100%;
 }
 
-
 #tallyBannerContainer {
     background-image: url('images/banner_rails.png');
     background-repeat: repeat-x;
@@ -60,4 +59,33 @@ input[type="button"] {
     font-size: 20px;
     font-family: Arial;
     border: 1px solid;
+}
+
+#legend {
+    background: #FFF;
+    padding: 10px;
+    margin: 5px;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+}
+
+#legend .color {
+    border: 1px solid;
+    height: 12px;
+    width: 12px;
+    margin-right: 3px;
+    float: left;
+}
+
+#legend .color1 {
+    background: #073763;
+}
+
+#legend .color2 {
+    background: #9fc5e8;
+
+}
+
+#legend .color4 {
+    background: #cfe2f3;
 }

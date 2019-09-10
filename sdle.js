@@ -3,6 +3,7 @@ var service_bodies = [];
 var root = "https://tomato.na-bmlt.org/main_server/";
 var radius_to_miles_ratio = 1609.3;
 var map_objects = [];
+var map_customs = [];
 var kml = {
     popdensity: [
         'us/alabama.xml'
@@ -204,8 +205,26 @@ function drawServiceBody(id, recurse) {
 
                 addToMapObjectCollection(kml);
             }
+
+            var legend = document.createElement('div');
+            legend.id = 'legend';
+            var content = [];
+            content.push('<b>Population density</b><br>/ sq mi.');
+            content.push('<p><div class="color color1"></div>&nbsp;&nbsp;>&nbsp;&nbsp;1,000</p>');
+            content.push('<p><div class="color color2"></div>&nbsp;&nbsp;250-999</p>');
+            content.push('<p><div class="color color4"></div>&nbsp;&nbsp;<&nbsp;&nbsp;250</p>');
+
+            legend.innerHTML = content.join('');
+            legend.index = 1;
+            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+
+            addToMapCustomsCollection(legend);
         }
     });
+}
+
+function addToMapCustomsCollection(obj) {
+    map_customs.push(obj);
 }
 
 function addToMapObjectCollection(obj) {
@@ -213,6 +232,12 @@ function addToMapObjectCollection(obj) {
 }
 
 function clearAllMapObjects() {
+    while (map_customs.length > 0) {
+        var element = document.getElementById(map_customs[0].id);
+        element.parentNode.removeChild(element);
+        map_customs.splice(0, 1);
+    }
+
     while (map_objects.length > 0) {
         map_objects[0].setMap(null);
         map_objects.splice(0, 1);
