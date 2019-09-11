@@ -240,8 +240,10 @@ function addToMapObjectCollection(obj) {
 
 function clearLegend(id) {
     var element = document.getElementById(id);
-    element.parentNode.removeChild(element);
-    map_customs.splice(0, 1);
+    if (element != null) {
+        element.parentNode.removeChild(element);
+        map_customs.splice(0, 1);
+    }
 }
 
 function clearAllMapObjects() {
