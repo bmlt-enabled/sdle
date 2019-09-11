@@ -4,6 +4,7 @@ var root = "https://tomato.na-bmlt.org/main_server/";
 var radius_to_miles_ratio = 1609.3;
 var map_objects = [];
 var map_customs = [];
+var self = this;
 var kml = {
     popdensity: [
         'us/alabama.kmz',
@@ -23,9 +24,9 @@ $(function() {
 $('#data-layers-popdensity-enabled').click(function() {
     clearLegend("population_legend")
     if ($('#data-layers-popdensity-enabled').is(":checked")) {
-        for (var l = 0; l < this.kml.popdensity.length; l++) {
+        for (var l = 0; l < self.kml.popdensity.length; l++) {
             kmlLayer = new google.maps.KmlLayer({
-                url: window.location.href + 'layers/popdensity/' + this.kml.popdensity[l],
+                url: window.location.href + 'layers/popdensity/' + self.kml.popdensity[l],
                 map: map,
                 preserveViewport: true,
             });
