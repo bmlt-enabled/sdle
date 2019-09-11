@@ -4,6 +4,7 @@ var root = "https://tomato.na-bmlt.org/main_server/";
 var radius_to_miles_ratio = 1609.3;
 var map_objects = [];
 var map_customs = [];
+var kml_layers = [];
 var self = this;
 var kml = {
     popdensity: [
@@ -22,7 +23,7 @@ $(function() {
 });
 
 $('#data-layers-popdensity-enabled').click(function() {
-    clearLegend("population_legend")
+    clearKmlLayers();
     if ($('#data-layers-popdensity-enabled').is(":checked")) {
         for (var l = 0; l < self.kml.popdensity.length; l++) {
             kmlLayer = new google.maps.KmlLayer({
@@ -31,7 +32,7 @@ $('#data-layers-popdensity-enabled').click(function() {
                 preserveViewport: true,
             });
 
-            addToMapObjectCollection(kmlLayer);
+            addToMapKmlCollection(kmlLayer);
         }
 
         var legend = document.createElement('div');
@@ -46,6 +47,7 @@ $('#data-layers-popdensity-enabled').click(function() {
         legend.innerHTML = content.join('');
         legend.index = 1;
         map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+
 
         addToMapCustomsCollection(legend);
     }
@@ -232,6 +234,10 @@ function drawServiceBody(id, recurse) {
     });
 }
 
+function addToMapKmlCollection(kmlLayer) {
+    kml_layers.push(kmlLayer);
+}
+
 function addToMapCustomsCollection(obj) {
     map_customs.push(obj);
 }
@@ -248,13 +254,21 @@ function clearLegend(id) {
     }
 }
 
+function clearKmlLayers() {
+    clearLegend("population_legend");
+    while (kml_layers.length > 0) {
+        kml_layers[0].setMap(null);
+        kml_layers.splice(0, 1);
+    }
+}
+
 function clearAllMapObjects() {
     while (map_objects.length > 0) {
         map_objects[0].setMap(null);
         map_objects.splice(0, 1);
     }
 
-    clearLegend("population_legend");
+    clearKmlLayers();
     infoWindow.close();
     document.getElementById('criteria').value = '';
 }
