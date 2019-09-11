@@ -6,12 +6,11 @@ var map_objects = [];
 var map_customs = [];
 var kml = {
     popdensity: [
-        'us/alabama.xml',
-        'us/connecticut.xml',
-        'us/florida.xml',
-        'us/massachusetts.xml',
-        'us/rhode-island.xml',
-        'us/tennessee.xml',
+        //'us/alabama.kmz',
+        //'us/connecticut.kmz',
+        //'us/florida.kmz',
+        //'us/rhode-island.kmz',
+        'us/tennessee.kmz'
     ]
 };
 
@@ -202,14 +201,14 @@ function drawServiceBody(id, recurse) {
 
         clearCustoms();
         if ($('#data-layers-popdensity-enabled').is(":checked")) {
-            for (var l = 0; l < this.kml.popdensity.length; l++) {
-                var kml = new google.maps.KmlLayer({
+            for (var l = 0; l < this.kml["popdensity"].length; l++) {
+                kmlLayer = new google.maps.KmlLayer({
                     url: window.location.href + 'layers/popdensity/' + this.kml.popdensity[l],
                     map: map,
                     preserveViewport: true,
                 });
 
-                addToMapObjectCollection(kml);
+                addToMapObjectCollection(kmlLayer);
             }
 
             var legend = document.createElement('div');
