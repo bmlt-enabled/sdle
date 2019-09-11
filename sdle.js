@@ -35,7 +35,8 @@ $('#data-layers-popdensity-enabled').click(function() {
         }
 
         var legend = document.createElement('div');
-        legend.id = 'population_density';
+        legend.id = 'population_legend';
+        legend.className = 'legend';
         var content = [];
         content.push('<b>Population density</b><br>/ sq mi.');
         content.push('<p><div class="color color1"></div>&nbsp;&nbsp;>&nbsp;&nbsp;1,000</p>');
@@ -241,7 +242,7 @@ function addToMapObjectCollection(obj) {
 
 function clearLegend(id) {
     var element = document.getElementById(id);
-    if (element != null) {
+    if (element !== null) {
         element.parentNode.removeChild(element);
         map_customs.splice(0, 1);
     }
