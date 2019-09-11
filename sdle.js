@@ -20,6 +20,35 @@ $(function() {
     });
 });
 
+$('#data-layers-popdensity-enabled').click(function() {
+    clearLegend("population_legend")
+    if ($('#data-layers-popdensity-enabled').is(":checked")) {
+        for (var l = 0; l < this.kml.popdensity.length; l++) {
+            kmlLayer = new google.maps.KmlLayer({
+                url: window.location.href + 'layers/popdensity/' + this.kml.popdensity[l],
+                map: map,
+                preserveViewport: true,
+            });
+
+            addToMapObjectCollection(kmlLayer);
+        }
+
+        var legend = document.createElement('div');
+        legend.id = 'population_density';
+        var content = [];
+        content.push('<b>Population density</b><br>/ sq mi.');
+        content.push('<p><div class="color color1"></div>&nbsp;&nbsp;>&nbsp;&nbsp;1,000</p>');
+        content.push('<p><div class="color color2"></div>&nbsp;&nbsp;250-999</p>');
+        content.push('<p><div class="color color4"></div>&nbsp;&nbsp;<&nbsp;&nbsp;250</p>');
+
+        legend.innerHTML = content.join('');
+        legend.index = 1;
+        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
+
+        addToMapCustomsCollection(legend);
+    }
+});
+
 function getServiceBodyForCoordinates(latitude, longitude, callback) {
     $.getJSON(root + "/client_interface/jsonp/?switcher=GetSearchResults&sort_results_by_distance=1&geo_width=-10&long_val=" + longitude + "&lat_val=" + latitude + "&callback=?", function (data) {
         callback(data);
@@ -198,33 +227,6 @@ function drawServiceBody(id, recurse) {
 
 
         }
-
-        clearCustoms();
-        if ($('#data-layers-popdensity-enabled').is(":checked")) {
-            for (var l = 0; l < this.kml["popdensity"].length; l++) {
-                kmlLayer = new google.maps.KmlLayer({
-                    url: window.location.href + 'layers/popdensity/' + this.kml.popdensity[l],
-                    map: map,
-                    preserveViewport: true,
-                });
-
-                addToMapObjectCollection(kmlLayer);
-            }
-
-            var legend = document.createElement('div');
-            legend.id = 'legend';
-            var content = [];
-            content.push('<b>Population density</b><br>/ sq mi.');
-            content.push('<p><div class="color color1"></div>&nbsp;&nbsp;>&nbsp;&nbsp;1,000</p>');
-            content.push('<p><div class="color color2"></div>&nbsp;&nbsp;250-999</p>');
-            content.push('<p><div class="color color4"></div>&nbsp;&nbsp;<&nbsp;&nbsp;250</p>');
-
-            legend.innerHTML = content.join('');
-            legend.index = 1;
-            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
-
-            addToMapCustomsCollection(legend);
-        }
     });
 }
 
@@ -236,12 +238,10 @@ function addToMapObjectCollection(obj) {
     map_objects.push(obj);
 }
 
-function clearCustoms() {
-    while (map_customs.length > 0) {
-        var element = document.getElementById(map_customs[0].id);
-        element.parentNode.removeChild(element);
-        map_customs.splice(0, 1);
-    }
+function clearLegend(id) {
+    var element = document.getElementById(id);
+    element.parentNode.removeChild(element);
+    map_customs.splice(0, 1);
 }
 
 function clearAllMapObjects() {
@@ -250,7 +250,7 @@ function clearAllMapObjects() {
         map_objects.splice(0, 1);
     }
 
-    clearCustoms();
+    clearLegend("population_legend");
     infoWindow.close();
     document.getElementById('criteria').value = '';
 }
