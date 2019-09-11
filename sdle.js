@@ -6,10 +6,10 @@ var map_objects = [];
 var map_customs = [];
 var kml = {
     popdensity: [
-        //'us/alabama.kmz',
-        //'us/connecticut.kmz',
-        //'us/florida.kmz',
-        //'us/rhode-island.kmz',
+        'us/alabama.kmz',
+        'us/connecticut.kmz',
+        'us/florida.kmz',
+        'us/rhode-island.kmz',
         'us/tennessee.kmz'
     ]
 };
