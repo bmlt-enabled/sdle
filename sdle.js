@@ -11,6 +11,7 @@ var kml = {
         'us/alabama.kmz',
         'us/connecticut.kmz',
         'us/florida.kmz',
+        'us/massachusetts.kmz',
         'us/rhode-island.kmz',
         'us/tennessee.kmz'
     ]
