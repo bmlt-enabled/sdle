@@ -13,7 +13,8 @@ var kml = {
         'us/florida.kmz',
         'us/massachusetts.kmz',
         'us/rhode-island.kmz',
-        'us/tennessee.kmz'
+        'us/tennessee.kmz',
+        'us/wisconsin.kmz'
     ]
 };
 
