@@ -29,7 +29,7 @@ $('#data-layers-popdensity-enabled').click(function() {
     if ($('#data-layers-popdensity-enabled').is(":checked")) {
         for (var l = 0; l < self.kml.popdensity.length; l++) {
             kmlLayer = new google.maps.KmlLayer({
-                url: window.location.href + 'layers/popdensity/' + self.kml.popdensity[l],
+                url: window.location.href + 'layers/popdensity/' + self.kml.popdensity[l] + '?v=' + Date.now().toString(),
                 map: map,
                 preserveViewport: true,
             });
