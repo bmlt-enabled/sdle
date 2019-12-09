@@ -93,8 +93,11 @@ function search() {
 }
 
 function initMap() {
+    var lat = getUrlParameter("lat") === null ? -34.397 : parseFloat(getUrlParameter("lat"));
+    var lng = getUrlParameter("lng") === null ? 150.644 : parseFloat(getUrlParameter("lng"));
+
     map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: -34.397, lng: 150.644},
+        center: {lat: lat, lng: lng},
         zoom: 8,
         draggableCursor: 'crosshair'
     });
