@@ -1,6 +1,6 @@
 var map, infoWindow, geocoder;
 var service_bodies = [];
-var root = "https://tomato.bmltenabled.org/main_server/";
+var root = getUrlParameter("root") === null ? "https://tomato.bmltenabled.org/main_server/" : getUrlParameter("root");
 var radius_to_miles_ratio = 1609.3;
 var map_objects = [];
 var map_customs = [];
@@ -296,4 +296,11 @@ function getServiceBodyById(id) {
     for (var i = 0; i < service_bodies.length; i++) {
         if (service_bodies[i]["id"] === id) return service_bodies[i];
     }
+}
+
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
