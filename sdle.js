@@ -1,6 +1,6 @@
 var map, infoWindow, geocoder;
 var service_bodies = [];
-var root = "https://tomato.na-bmlt.org/main_server/";
+var root = "https://tomato.bmltenabled.org/main_server/";
 var radius_to_miles_ratio = 1609.3;
 var map_objects = [];
 var map_customs = [];
