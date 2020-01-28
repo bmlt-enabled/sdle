@@ -49,8 +49,8 @@ if (!class_exists("sdleBmlt")) {
             $googleApiKey = get_option('sdleBmltGoogleApiKey');
             wp_enqueue_style('sdle-bmlt-ui-css', plugins_url('sdle.css', __FILE__), false, $this->version, false);
             wp_enqueue_script('jquery');
-            wp_enqueue_script('sdle-bmlt-js', plugins_url('sdle-wp.js', __FILE__), array('jquery'), filemtime(plugin_dir_path(__FILE__) . "sdle-wp.js"), false);
-            wp_enqueue_script('googleapis', esc_url( add_query_arg( 'key', $googleApiKey.'&callback=initMap', '//maps.googleapis.com/maps/api/js' )), array(), null, true );
+            wp_enqueue_script('sdle-bmlt-js', plugins_url('sdle-wp.js', __FILE__), array('jquery'), $this->version, false);
+            wp_enqueue_script('googleapis', esc_url( add_query_arg( 'key', $googleApiKey.'&callback=initMap', 'https:////maps.googleapis.com/maps/api/js' )), array(), null, true );
         }
 
         public function sdleBmltAdminOptionsPage()
@@ -88,7 +88,10 @@ if (!class_exists("sdleBmlt")) {
             $content = '
             <div id="tallyBannerContainer">
                 <a href="https://github.com/bmlt-enabled/sdle/issues" target="blank">
-                    <img id="tallyBannerImage" src="' . esc_url( plugins_url( 'images/banner.png', __FILE__ ) ) .'">
+                    <picture>
+                    <source srcset="' . esc_url( plugins_url( 'images/banner-600.png', __FILE__ ) ) .'" media="(max-width: 600px)">
+                        <img id="tallyBannerImage" srcset="' . esc_url( plugins_url( 'images/banner.png', __FILE__ ) ) .'">
+                    </picture>
                 </a>
             </div>
             <div id="search">

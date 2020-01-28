@@ -52,10 +52,26 @@ and (orientation: portrait) {
 #criteria {
     font-size: 20px;
     font-family: Arial;
+    width: 20%;
+    border: 1px solid;
+    display: inline;
+}
+
+#willingness-distance input#willingness {
+    width: 20%;
+}
+
+willingness {
+    width: 20px;
+}
+
+#criteria-button {
+    font-size: 20px;
+    font-family: Arial;
     border: 1px solid;
 }
 
-input[type="button"] {
+#reset-button {
     font-size: 20px;
     font-family: Arial;
     border: 1px solid;

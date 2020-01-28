@@ -17,16 +17,17 @@ var kml = {
         'us/wisconsin.kmz'
     ]
 };
+var sd = jQuery.noConflict();
 
-$(function() {
-    $.getJSON(root + "client_interface/jsonp/?switcher=GetServiceBodies&callback=?", function(data) {
+sd(function() {
+    sd.getJSON(root + "client_interface/jsonp/?switcher=GetServiceBodies&callback=?", function(data) {
         service_bodies = data;
     });
 });
 
-$('#data-layers-popdensity-enabled').click(function() {
+sd('#data-layers-popdensity-enabled').click(function() {
     clearKmlLayers();
-    if ($('#data-layers-popdensity-enabled').is(":checked")) {
+    if (sd('#data-layers-popdensity-enabled').is(":checked")) {
         for (var l = 0; l < self.kml.popdensity.length; l++) {
             kmlLayer = new google.maps.KmlLayer({
                 url: window.location.href + 'layers/popdensity/' + self.kml.popdensity[l] + '?v=' + Date.now().toString(),
@@ -56,7 +57,7 @@ $('#data-layers-popdensity-enabled').click(function() {
 });
 
 function getServiceBodyForCoordinates(latitude, longitude, callback) {
-    $.getJSON(root + "/client_interface/jsonp/?switcher=GetSearchResults&sort_results_by_distance=1&geo_width=-10&long_val=" + longitude + "&lat_val=" + latitude + "&callback=?", function (data) {
+    sd.getJSON(root + "/client_interface/jsonp/?switcher=GetSearchResults&sort_results_by_distance=1&geo_width=-10&long_val=" + longitude + "&lat_val=" + latitude + "&callback=?", function (data) {
         callback(data);
     });
 
@@ -74,13 +75,13 @@ function getMeetingsForServiceBody(id, recurse, callback) {
     }
 
     if (recurse) url += "&recursive=1";
-    $.getJSON(root + url + "&callback=?", function (data) {
+    sd.getJSON(root + url + "&callback=?", function (data) {
         callback(data);
     });
 }
 
 function search() {
-    geocoder.geocode({'address': $("#criteria").val() }, function(results, status) {
+    geocoder.geocode({'address': sd("#criteria").val() }, function(results, status) {
         if (status === "OK") {
             setMapInfo(pos = {
                 lat: results[0].geometry.location.lat(),
@@ -204,7 +205,7 @@ function drawServiceBody(id, recurse) {
 
                 var circle = new google.maps.Circle({
                     map: map,
-                    radius: parseFloat($("#willingness").val()) * radius_to_miles_ratio,
+                    radius: parseFloat(sd("#willingness").val()) * radius_to_miles_ratio,
                     fillColor: 'blue',
                     strokeWeight: 0.5,
                     fillOpacity: 0.05,
