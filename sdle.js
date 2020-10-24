@@ -213,7 +213,7 @@ function drawServiceBody(id, recurse) {
                 addToMapObjectCollection(circle);
             }
         } else if (drawOption === "markers") {
-            var marker_url = "images/red_dot.png";
+            var marker_url = "images/NAMarkerR.png";
             for (var j = 0; j < data.length; j++) {
                 var meeting = data[j];
 
