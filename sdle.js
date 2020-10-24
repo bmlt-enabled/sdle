@@ -183,7 +183,7 @@ function drawServiceBody(id, recurse) {
                 strokeOpacity: 0.8,
                 strokeWeight: 2,
                 fillColor: '#FF0000',
-                fillOpacity: 0.5
+                fillOpacity: 0.1
             });
 
             addToMapObjectCollection(serviceBodyPolygon);
