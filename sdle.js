@@ -213,13 +213,25 @@ function drawServiceBody(id, recurse) {
                 addToMapObjectCollection(circle);
             }
         } else if (drawOption === "markers") {
-            var marker_url = "images/NAMarkerR.png";
             for (var j = 0; j < data.length; j++) {
                 var meeting = data[j];
+                var position = new google.maps.LatLng(meeting.latitude, meeting.longitude);
+
+                // Check for nearby meetings within 100 meters
+                var nearbyLocations = data.filter(function(otherMeeting) {
+                    var otherPosition = new google.maps.LatLng(otherMeeting.latitude, otherMeeting.longitude);
+                    var distance = google.maps.geometry.spherical.computeDistanceBetween(position, otherPosition);
+                    return distance < 100;
+                });
+
+                var marker_url = "images/NAMarkerR.png";
+                if (nearbyLocations.length > 1) {
+                    marker_url = "images/NAMarkerB.png";
+                }
 
                 var marker = new google.maps.Marker({
                     map: map,
-                    position: new google.maps.LatLng(meeting.latitude, meeting.longitude),
+                    position: position,
                     icon: {
                         url: marker_url
                     }
