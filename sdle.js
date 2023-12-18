@@ -118,12 +118,6 @@ function initMap() {
             window.alert("No details available for input: '" + place.name + "'");
             return;
         }
-        if (place.geometry.viewport) {
-            map.fitBounds(place.geometry.viewport);
-        } else {
-            map.setCenter(place.geometry.location);
-            map.setZoom(17);
-        }
         setMapInfo({
             lat: place.geometry.location.lat(),
             lng: place.geometry.location.lng()
