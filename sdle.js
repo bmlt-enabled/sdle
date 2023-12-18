@@ -101,10 +101,38 @@ function initMap() {
         zoom: 8,
         draggableCursor: 'crosshair'
     });
-    infoWindow = new google.maps.InfoWindow;
-    geocoder = new google.maps.Geocoder;
 
-    google.maps.event.addDomListener(map,'click',function(e) {
+    infoWindow = new google.maps.InfoWindow();
+    geocoder = new google.maps.Geocoder();
+
+    var autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('criteria'),
+        {types: ['geocode']}
+    );
+
+    autocomplete.bindTo('bounds', map);
+    autocomplete.addListener('place_changed', function() {
+        infoWindow.close();
+        var place = autocomplete.getPlace();
+        if (!place.geometry) {
+            window.alert("No details available for input: '" + place.name + "'");
+            return;
+        }
+        if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+        } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);
+        }
+        setMapInfo({
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng()
+        });
+        infoWindow.setContent('<div><strong>' + place.name + '</strong><br>');
+        infoWindow.open(map);
+    });
+
+    google.maps.event.addDomListener(map, 'click', function(e) {
         infoWindow.close(map);
         setMapInfo({
             lat: e.latLng.lat(),
