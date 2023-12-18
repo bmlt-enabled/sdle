@@ -115,7 +115,6 @@ function initMap() {
         infoWindow.close();
         var place = autocomplete.getPlace();
         if (!place.geometry) {
-            window.alert("No details available for input: '" + place.name + "'");
             return;
         }
         setMapInfo({
