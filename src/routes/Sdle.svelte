@@ -390,19 +390,20 @@
 	<span id="draw-options">
 		<input type="radio" name="draw-options-radio" value="markers" checked /> Markers
 		<input type="radio" name="draw-options-radio" value="polygon" /> Polygon
-		<input type="radio" name="draw-options-radio" value="circles" /> Circles
+		<input type="radio" name="draw-options-radio" value="circles" /> Circles / Willingness:
 	</span>
 	<span id="willingness-distance">
-		/ Willingness:
 		<input id="willingness" type="text" value="30" size="3" />
 		<select id="distance-unit" bind:value={distanceUnit}>
 			<option value="miles">miles</option>
 			<option value="km">km</option>
 		</select>
-	</span>
-	/ Data Layers:
-	<span id="data-layers-popdensity">
-		<input id="data-layers-popdensity-enabled" type="checkbox" value="false" /> Pop. Density
+		<span id="data-layers-container">
+			/ Data Layers:
+			<span id="data-layers-popdensity">
+				<input id="data-layers-popdensity-enabled" type="checkbox" value="false" /> Pop. Density
+			</span>
+		</span>
 	</span>
 </div>
 <div class="map-container" bind:this={mapElement} />
