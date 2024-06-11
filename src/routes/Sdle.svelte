@@ -8,12 +8,15 @@
 	let geocoder: google.maps.Geocoder;
 	let mapElement: HTMLElement;
 	let criteria: string = '';
-	let kml_layers: any[] = [];
+	let serviceBodies: ServiceBody[] = [];
+	let kml_layers: google.maps.KmlLayer[] = [];
+	let map_customs: HTMLElement[] = [];
+	let map_objects: (google.maps.marker.AdvancedMarkerElement | google.maps.Polygon | google.maps.Circle)[] = [];
+	let distanceUnit: string = 'miles';
+	// Google Maps requires circle radius in meters
+	const radius_to_miles_ratio = 1609.34; // 1 mile = 1609.34 meters
+	const radius_to_km_ratio = 1000; // 1 km = 1000 meters
 	const root = 'https://aggregator.bmltenabled.org/main_server/';
-	const radius_to_miles_ratio = 1609.34; // Adjust this based on the correct value
-	let serviceBodies: Array<any> = [];
-	let map_customs: Array<any> = [];
-	let map_objects: Array<any> = [];
 	const kml = {
 		popdensity: ['us/alabama.kmz', 'us/connecticut.kmz', 'us/florida.kmz', 'us/massachusetts.kmz', 'us/rhode-island.kmz', 'us/tennessee.kmz', 'us/wisconsin.kmz']
 	};
@@ -26,6 +29,18 @@
 		location_street: string;
 		location_municipality: string;
 		location_province: string;
+		service_body_bigint: string;
+		distance_in_miles: string;
+		distance_in_km: string;
+		root_server_uri: string;
+	}
+
+	interface ServiceBody {
+		id: string;
+		name: string;
+		url: string;
+		helpline: string;
+		parent_id: string;
 	}
 
 	const initMap = async (map: google.maps.Map) => {
@@ -75,13 +90,13 @@
 		}
 	};
 
-	const fetchServiceBodyForCoordinates = async (latitude: number, longitude: number): Promise<any> => {
+	const fetchServiceBodyForCoordinates = async (latitude: number, longitude: number): Promise<Meeting[]> => {
 		const response = await fetch(`${root}/client_interface/json/?switcher=GetSearchResults&sort_results_by_distance=1&geo_width=-10&long_val=${longitude}&lat_val=${latitude}`);
-		const data = await response.json();
+		const data: Meeting[] = await response.json();
 		return data;
 	};
 
-	const getServiceBodyById = (id: number) => {
+	const getServiceBodyById = (id: string) => {
 		return serviceBodies.find((body) => body.id === id);
 	};
 
@@ -90,15 +105,16 @@
 		const data = await fetchServiceBodyForCoordinates(pos.lat, pos.lng);
 		if (data && data.length > 0) {
 			const serviceBodyDetails = getServiceBodyById(data[0]['service_body_bigint']);
-			const parentServiceBody = serviceBodyDetails && serviceBodyDetails['parent_id'] > 0 ? getServiceBodyById(serviceBodyDetails['parent_id']) : { name: 'no parent', id: -1 };
+			const parentServiceBody = serviceBodyDetails && Number(serviceBodyDetails['parent_id']) > 0 ? getServiceBodyById(serviceBodyDetails['parent_id']) : { name: 'no parent', id: -1 };
 			let content = '';
-			if (parseInt(data[0]['distance_in_miles']) < 100) {
-				content =
-					`<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails['name']}</a></b>` +
-					(parentServiceBody['id'] > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody['name']}</a>)` : '') +
-					`<br>Website: <a href='${serviceBodyDetails['url']}' target='_blank'>${serviceBodyDetails['url']}</a>` +
-					`<br>Helpline: <a href='tel:${serviceBodyDetails['helpline'].split('|')[0]}' target='_blank'>${serviceBodyDetails['helpline'].split('|')[0]}</a>` +
-					`<br>Root Server: <a href='${data[0]['root_server_uri']}' target='_blank'>${data[0]['root_server_uri']}</a>`;
+			if (parseInt(data[0].distance_in_miles || '0') < 100 && serviceBodyDetails && parentServiceBody) {
+				const serviceBodyLink = `<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails.name}</a></b>`;
+				const parentServiceBodyLink =
+					Number(parentServiceBody.id) > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody.name}</a>)` : '';
+				const websiteLink = `<br>Website: <a href='${serviceBodyDetails.url}' target='_blank'>${serviceBodyDetails.url}</a>`;
+				const helplineLink = `<br>Helpline: <a href='tel:${serviceBodyDetails.helpline.split('|')[0]}' target='_blank'>${serviceBodyDetails.helpline.split('|')[0]}</a>`;
+				const rootServerLink = `<br>Root Server: <a href='${data[0].root_server_uri}' target='_blank'>${data[0].root_server_uri}</a>`;
+				content = `${serviceBodyLink}${parentServiceBodyLink}${websiteLink}${helplineLink}${rootServerLink}`;
 			} else {
 				content = '<b>Not covered by the BMLT yet.</b>';
 			}
@@ -130,13 +146,13 @@
 		});
 	};
 
-	function clearKmlLayers() {
+	const clearKmlLayers = () => {
 		clearLegend('population_legend');
 		while (kml_layers.length > 0) {
 			kml_layers[0].setMap(null);
 			kml_layers.splice(0, 1);
 		}
-	}
+	};
 
 	const clearLegend = (legendId: string) => {
 		const legend = document.getElementById(legendId);
@@ -146,46 +162,40 @@
 	};
 
 	const clearAllMapObjects = () => {
-		if (map_objects && map_objects.length > 0) {
-			for (const map_object of map_objects) {
-				if (map_object.setMap) {
-					map_object.setMap(null);
-				}
-				if (map_object.map !== undefined) {
-					map_object.map = null;
-				}
+		map_objects.forEach((mapObject) => {
+			if ('setMap' in mapObject) {
+				mapObject.setMap(null);
 			}
-			map_objects = [];
-		}
+			if ('map' in mapObject && mapObject.map !== undefined) {
+				mapObject.map = null;
+			}
+		});
+		map_objects = [];
 
 		clearKmlLayers();
 		infoWindow.close();
 		criteria = '';
 	};
 
-	const addToMapKmlCollection = (kmlLayer: any) => {
+	const addToMapKmlCollection = (kmlLayer: google.maps.KmlLayer) => {
 		kml_layers.push(kmlLayer);
 	};
 
-	const addToMapCustomsCollection = (obj: any) => {
+	const addToMapCustomsCollection = (obj: HTMLElement) => {
 		map_customs.push(obj);
 	};
 
-	const addToMapObjectCollection = (obj: any) => {
+	const addToMapObjectCollection = (obj: google.maps.marker.AdvancedMarkerElement | google.maps.Polygon | google.maps.Circle) => {
 		map_objects.push(obj);
 	};
 
 	const getDrawOption = (): string => {
-		const radios = document.getElementsByName('draw-options-radio') as NodeListOf<HTMLInputElement>;
-		for (let i = 0, length = radios.length; i < length; i++) {
-			if (radios[i].checked) {
-				return radios[i].value;
-			}
-		}
-		return 'markers';
+		const radios = Array.from(document.getElementsByName('draw-options-radio')).filter((element): element is HTMLInputElement => element instanceof HTMLInputElement);
+		const checkedRadio = radios.find((radio) => radio.checked);
+		return checkedRadio ? checkedRadio.value : 'markers';
 	};
 
-	const getMeetingsForServiceBody = async (id: number, recurse: boolean): Promise<any> => {
+	const getMeetingsForServiceBody = async (id: number, recurse: boolean): Promise<Meeting[]> => {
 		let url = `${root}/client_interface/json/?switcher=GetSearchResults&services[]=${id}&data_field_key=latitude,longitude`;
 		if (getDrawOption() === 'markers') {
 			url += ',meeting_name,location_street,location_province,location_municipality,id_bigint';
@@ -193,8 +203,7 @@
 
 		if (recurse) url += '&recursive=1';
 		const response = await fetch(url);
-		const data = await response.json();
-		return data;
+		return await response.json();
 	};
 
 	const drawServiceBody = async (id: number, recurse: boolean) => {
@@ -245,7 +254,7 @@
 
 				const circle = new google.maps.Circle({
 					map: map,
-					radius: parseFloat((document.getElementById('willingness') as HTMLInputElement).value) * radius_to_miles_ratio,
+					radius: parseFloat((document.getElementById('willingness') as HTMLInputElement).value) * (distanceUnit === 'miles' ? radius_to_miles_ratio : radius_to_km_ratio),
 					fillColor: 'blue',
 					strokeWeight: 0.5,
 					fillOpacity: 0.05,
@@ -282,12 +291,12 @@
 				const message = document.createElement('div');
 				message.classList.add('meeting');
 				message.innerHTML = `
-	<div class="meeting-marker">
-		<div class="close-button">&times;</div>
-		<b>${meeting.meeting_name} (ID: ${meeting.id_bigint})</b>
-		<br/>${meeting.location_street}
-		<br/>${meeting.location_municipality}, ${meeting.location_province}
-	</div>`;
+    <div class="meeting-marker">
+        <div class="close-button">&times;</div>
+        <b>${meeting.meeting_name} (ID: ${meeting.id_bigint})</b>
+        ${meeting.location_street ? `<br/>${meeting.location_street}` : ''}
+        ${meeting.location_municipality || meeting.location_province ? `<br/>${[meeting.location_municipality, meeting.location_province].filter(Boolean).join(', ')}` : ''}
+    </div>`;
 				marker.addListener('click', () => {
 					toggleMeetingMarker(marker, message, naMarkerImage);
 				});
@@ -295,15 +304,11 @@
 		}
 	};
 
-	function toggleMeetingMarker(markerView: google.maps.marker.AdvancedMarkerElement, message: HTMLDivElement, naMarkerImage: HTMLImageElement) {
-		if (markerView.content === message) {
-			markerView.content = naMarkerImage;
-			markerView.zIndex = null;
-		} else {
-			markerView.content = message;
-			markerView.zIndex = 1;
-		}
-	}
+	const toggleMeetingMarker = (markerView: google.maps.marker.AdvancedMarkerElement, message: HTMLDivElement, naMarkerImage: HTMLImageElement): void => {
+		const isMessageContent = markerView.content === message;
+		markerView.content = isMessageContent ? naMarkerImage : message;
+		markerView.zIndex = isMessageContent ? null : 1;
+	};
 
 	const handlePopulationDensityToggle = () => {
 		clearKmlLayers();
@@ -336,7 +341,7 @@
 	};
 
 	if (typeof window !== 'undefined') {
-		(window as any).drawServiceBody = drawServiceBody;
+		window.drawServiceBody = drawServiceBody;
 	}
 
 	onMount(async function () {
@@ -387,7 +392,14 @@
 		<input type="radio" name="draw-options-radio" value="polygon" /> Polygon
 		<input type="radio" name="draw-options-radio" value="circles" /> Circles
 	</span>
-	<span id="willingness-distance">/ Willingness: <input id="willingness" type="text" value="30" size="3" /> miles</span>
+	<span id="willingness-distance">
+		/ Willingness:
+		<input id="willingness" type="text" value="30" size="3" />
+		<select id="distance-unit" bind:value={distanceUnit}>
+			<option value="miles">miles</option>
+			<option value="km">km</option>
+		</select>
+	</span>
 	/ Data Layers:
 	<span id="data-layers-popdensity">
 		<input id="data-layers-popdensity-enabled" type="checkbox" value="false" /> Pop. Density

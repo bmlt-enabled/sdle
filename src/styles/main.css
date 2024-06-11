@@ -48,7 +48,7 @@ body {
 }
 
 #tallyBannerContainer {
-	background-image: url('$lib/../../static/images/banner_rails.png');
+	background-image: url('/images/banner_rails.png');
 	background-repeat: repeat-x;
 	background-size: 15% 100%;
 	display: block;
