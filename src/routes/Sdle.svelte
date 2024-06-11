@@ -12,8 +12,11 @@
 	let kml_layers: google.maps.KmlLayer[] = [];
 	let map_customs: HTMLElement[] = [];
 	let map_objects: (google.maps.marker.AdvancedMarkerElement | google.maps.Polygon | google.maps.Circle)[] = [];
+	let distanceUnit: string = 'miles';
+	// Google Maps requires circle radius in meters
+	const radius_to_miles_ratio = 1609.34; // 1 mile = 1609.34 meters
+	const radius_to_km_ratio = 1000; // 1 km = 1000 meters
 	const root = 'https://aggregator.bmltenabled.org/main_server/';
-	const radius_to_miles_ratio = 1609.34; // Adjust this based on the correct value
 	const kml = {
 		popdensity: ['us/alabama.kmz', 'us/connecticut.kmz', 'us/florida.kmz', 'us/massachusetts.kmz', 'us/rhode-island.kmz', 'us/tennessee.kmz', 'us/wisconsin.kmz']
 	};
@@ -251,7 +254,7 @@
 
 				const circle = new google.maps.Circle({
 					map: map,
-					radius: parseFloat((document.getElementById('willingness') as HTMLInputElement).value) * radius_to_miles_ratio,
+					radius: parseFloat((document.getElementById('willingness') as HTMLInputElement).value) * (distanceUnit === 'miles' ? radius_to_miles_ratio : radius_to_km_ratio),
 					fillColor: 'blue',
 					strokeWeight: 0.5,
 					fillOpacity: 0.05,
@@ -389,7 +392,14 @@
 		<input type="radio" name="draw-options-radio" value="polygon" /> Polygon
 		<input type="radio" name="draw-options-radio" value="circles" /> Circles
 	</span>
-	<span id="willingness-distance">/ Willingness: <input id="willingness" type="text" value="30" size="3" /> miles</span>
+	<span id="willingness-distance">
+		/ Willingness:
+		<input id="willingness" type="text" value="30" size="3" />
+		<select id="distance-unit" bind:value={distanceUnit}>
+			<option value="miles">miles</option>
+			<option value="km">km</option>
+		</select>
+	</span>
 	/ Data Layers:
 	<span id="data-layers-popdensity">
 		<input id="data-layers-popdensity-enabled" type="checkbox" value="false" /> Pop. Density
