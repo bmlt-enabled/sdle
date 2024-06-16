@@ -43,21 +43,39 @@
 		parent_id: string;
 	}
 
+	interface PlaceSelectEvent extends Event {
+		place: {
+			fetchFields: (options: { fields: string[] }) => Promise<void>;
+			location: {
+				lng: () => number;
+				lat: () => number;
+			};
+			formattedAddress: string;
+			displayName: string;
+		};
+	}
+
 	const initMap = async (map: google.maps.Map) => {
 		infoWindow = new google.maps.InfoWindow();
 		geocoder = new google.maps.Geocoder();
 
 		if (typeof window !== 'undefined') {
-			const autocomplete = new google.maps.places.Autocomplete(document.getElementById('criteria') as HTMLInputElement, { types: ['geocode'] });
-			autocomplete.bindTo('bounds', map);
-			autocomplete.addListener('place_changed', () => {
-				const place = autocomplete.getPlace();
-				if (!place.geometry) return;
-				const location = place.geometry.location;
+			const autocomplete = new google.maps.places.PlaceAutocompleteElement({});
+			autocomplete.id = 'criteriaSearch';
+			const locationSearchDiv = document.getElementById('autocomplete-box') as HTMLElement;
+			locationSearchDiv.appendChild(autocomplete);
+			autocomplete.addEventListener('gmp-placeselect', async (event) => {
+				const placeEvent = event as PlaceSelectEvent;
+				const place = placeEvent.place;
+				await place.fetchFields({
+					fields: ['displayName', 'formattedAddress', 'location']
+				});
+				const location = place.location;
 				if (location) {
-					setMapInfo({ lat: location.lat(), lng: location.lng() });
-					infoWindow.setContent(`<div><strong>${place.name}</strong><br>`);
+					const latLngLiteral = { lat: location.lat(), lng: location.lng() };
+					infoWindow.setContent(`<div><strong>${place.displayName}</strong><br>`);
 					infoWindow.open(map);
+					await setMapInfo(latLngLiteral);
 				}
 			});
 		}
@@ -382,8 +400,8 @@
 	</a>
 </div>
 <div id="search">
+	<div id="autocomplete-box"></div>
 	<span id="criteria-box">
-		<input type="text" id="criteria" name="criteria" bind:value={criteria} size="20" />
 		<input id="criteria-button" type="button" value="search" on:click={search} />
 		<input id="reset-button" type="button" value="reset" on:click={clearAllMapObjects} />
 	</span>
