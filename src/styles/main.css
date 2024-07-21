@@ -203,7 +203,6 @@ input[type='button'] {
 	}
 
 	#autocomplete-box {
-		display: flex;
 		width: 100%;
 		padding: 5px;
 	}
