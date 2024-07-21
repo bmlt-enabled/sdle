@@ -363,6 +363,10 @@
 	}
 
 	onMount(async function () {
+		// Fetch service bodies data
+		const response = await fetch(`${root}/client_interface/json/?switcher=GetServiceBodies`);
+		serviceBodies = await response.json();
+		
 		const thing = 'QUl6YVN5QlZFUGFxQ0RSQWkzbDFqbWY1eGRXMnJDX3kwWE9PcGRN';
 		const loader = new Loader({
 			apiKey: window.atob(thing),
@@ -382,10 +386,6 @@
 		});
 
 		await initMap(map);
-
-		// Fetch service bodies data
-		const response = await fetch(`${root}/client_interface/json/?switcher=GetServiceBodies`);
-		serviceBodies = await response.json();
 
 		const checkbox = document.getElementById('data-layers-popdensity-enabled');
 		if (checkbox) {
