@@ -402,8 +402,8 @@
 <div id="search">
 	<div id="autocomplete-box"></div>
 	<span id="criteria-box">
-		<input id="criteria-button" type="button" value="search" on:click={search} />
-		<input id="reset-button" type="button" value="reset" on:click={clearAllMapObjects} />
+		<input id="criteria-button" type="button" value="search" onclick={search} />
+		<input id="reset-button" type="button" value="reset" onclick={clearAllMapObjects} />
 	</span>
 	<span id="draw-options">
 		<input type="radio" name="draw-options-radio" value="markers" checked /> Markers
@@ -424,7 +424,7 @@
 		</span>
 	</span>
 </div>
-<div class="map-container" bind:this={mapElement} />
+<div class="map-container" bind:this={mapElement}></div>
 
 <style>
 </style>
