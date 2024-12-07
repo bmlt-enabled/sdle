@@ -26,7 +26,7 @@
 		"prettier": "^3.3.2",
 		"prettier-plugin-svelte": "^3.2.6",
 		"svelte": "^5.0.0",
-		"svelte-check": "^4.0.0",
+		"svelte-check": "^4.1.1",
 		"tslib": "^2.6.3",
 		"typescript": "^5.5.0",
 		"typescript-eslint": "^8.15.0",
@@ -35,5 +35,8 @@
 	"dependencies": {
 		"@googlemaps/adv-markers-utils": "^1.2.4",
 		"@googlemaps/js-api-loader": "^1.16.6"
+	},
+	"resolutions": {
+		"picomatch": "4.0.2"
 	}
 }
