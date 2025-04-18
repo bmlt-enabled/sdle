@@ -44,14 +44,15 @@
 	}
 
 	interface PlaceSelectEvent extends Event {
-		place: {
-			fetchFields: (options: { fields: string[] }) => Promise<void>;
-			location: {
-				lng: () => number;
-				lat: () => number;
+		placePrediction: {
+			toPlace: () => {
+				fetchFields: (options: { fields: string[] }) => Promise<void>;
+				location: google.maps.LatLng;
+				viewport?: google.maps.LatLngBounds;
+				formattedAddress: string;
+				displayName: string;
+				toJSON: () => Record<string, unknown>;
 			};
-			formattedAddress: string;
-			displayName: string;
 		};
 	}
 
@@ -60,24 +61,52 @@
 		geocoder = new google.maps.Geocoder();
 
 		if (typeof window !== 'undefined') {
-			const autocomplete = new google.maps.places.PlaceAutocompleteElement({});
-			autocomplete.id = 'criteriaSearch';
-			const locationSearchDiv = document.getElementById('autocomplete-box') as HTMLElement;
-			locationSearchDiv.appendChild(autocomplete);
-			autocomplete.addEventListener('gmp-placeselect', async (event) => {
-				const placeEvent = event as PlaceSelectEvent;
-				const place = placeEvent.place;
-				await place.fetchFields({
-					fields: ['displayName', 'formattedAddress', 'location']
-				});
-				const location = place.location;
-				if (location) {
-					const latLngLiteral = { lat: location.lat(), lng: location.lng() };
-					infoWindow.setContent(`<div><strong>${place.displayName}</strong><br>`);
-					infoWindow.open(map);
-					await setMapInfo(latLngLiteral);
+			try {
+				const autocomplete = new google.maps.places.PlaceAutocompleteElement({});
+				autocomplete.id = 'criteriaSearch';
+
+				const locationSearchDiv = document.getElementById('autocomplete-box') as HTMLElement;
+				if (!locationSearchDiv) {
+					console.error('Cannot find autocomplete-box element');
+					return;
 				}
-			});
+
+				locationSearchDiv.appendChild(autocomplete);
+				autocomplete.addEventListener('gmp-select', async (event) => {
+					const placeEvent = event as PlaceSelectEvent;
+
+					try {
+						const place = placeEvent.placePrediction.toPlace();
+						await place.fetchFields({
+							fields: ['displayName', 'formattedAddress', 'location']
+						});
+
+						const location = place.location;
+						if (location) {
+							const latLngLiteral = { lat: location.lat(), lng: location.lng() };
+							criteria = place.formattedAddress || place.displayName;
+							infoWindow.setContent(`<div><strong>${place.displayName}</strong><br>${place.formattedAddress}</div>`);
+							infoWindow.setPosition(location);
+							infoWindow.open(map);
+
+							if (place.viewport) {
+								map.fitBounds(place.viewport);
+							} else {
+								map.setCenter(location);
+								map.setZoom(17);
+							}
+
+							await setMapInfo(latLngLiteral);
+						} else {
+							console.error('No location data in place object');
+						}
+					} catch (error) {
+						console.error('Error processing place selection:', error);
+					}
+				});
+			} catch (error) {
+				console.error('Error setting up autocomplete:', error);
+			}
 		}
 
 		map.addListener('click', (e: google.maps.MapMouseEvent) => {
