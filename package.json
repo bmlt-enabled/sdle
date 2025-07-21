@@ -37,6 +37,6 @@
 		"@googlemaps/js-api-loader": "^1.16.6"
 	},
 	"resolutions": {
-		"picomatch": "4.0.2"
+		"picomatch": "4.0.3"
 	}
 }
