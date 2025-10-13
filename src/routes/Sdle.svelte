@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Loader } from '@googlemaps/js-api-loader';
+	import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 	import { Marker } from '@googlemaps/adv-markers-utils';
 
 	let map: google.maps.Map;
@@ -397,15 +397,12 @@
 		serviceBodies = await response.json();
 
 		const thing = 'QUl6YVN5QlZFUGFxQ0RSQWkzbDFqbWY1eGRXMnJDX3kwWE9PcGRN';
-		const loader = new Loader({
-			apiKey: window.atob(thing),
-			version: 'beta',
-			libraries: ['places', 'marker', 'geocoding', 'geometry']
+		setOptions({
+			key: window.atob(thing),
+			v: 'beta'
 		});
 
-		const { Map } = await loader.importLibrary('maps');
-		await google.maps.importLibrary('places');
-		await google.maps.importLibrary('marker');
+		const [{ Map }] = await Promise.all([importLibrary('maps'), importLibrary('places'), importLibrary('marker'), importLibrary('geocoding'), importLibrary('geometry')]);
 
 		map = new Map(mapElement, {
 			center: { lat: -34.397, lng: 150.644 },
