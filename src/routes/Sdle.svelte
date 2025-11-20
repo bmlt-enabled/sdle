@@ -399,7 +399,7 @@
 		const thing = 'QUl6YVN5QlZFUGFxQ0RSQWkzbDFqbWY1eGRXMnJDX3kwWE9PcGRN';
 		setOptions({
 			key: window.atob(thing),
-			v: 'beta'
+			v: 'weekly'
 		});
 
 		const [{ Map }] = await Promise.all([importLibrary('maps'), importLibrary('places'), importLibrary('marker'), importLibrary('geocoding'), importLibrary('geometry')]);
