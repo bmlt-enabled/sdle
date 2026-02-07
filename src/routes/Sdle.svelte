@@ -158,7 +158,8 @@
 				const serviceBodyLink = `<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails.name}</a></b>`;
 				const parentServiceBodyLink =
 					Number(parentServiceBody.id) > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody.name}</a>)` : '';
-				const websiteLink = `<br>Website: <a href='${serviceBodyDetails.url}' target='_blank'>${serviceBodyDetails.url}</a>`;
+				const websiteUrl = serviceBodyDetails.url.includes('://') ? serviceBodyDetails.url : `https://${serviceBodyDetails.url}`;
+				const websiteLink = `<br>Website: <a href='${websiteUrl}' target='_blank'>${serviceBodyDetails.url}</a>`;
 				const helplineLink = `<br>Helpline: <a href='tel:${serviceBodyDetails.helpline.split('|')[0]}' target='_blank'>${serviceBodyDetails.helpline.split('|')[0]}</a>`;
 				const rootServerLink = `<br>Root Server: <a href='${data[0].root_server_uri}' target='_blank'>${data[0].root_server_uri}</a>`;
 				content = `${serviceBodyLink}${parentServiceBodyLink}${websiteLink}${helplineLink}${rootServerLink}`;
