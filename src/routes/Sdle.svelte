@@ -56,6 +56,15 @@
 		};
 	}
 
+	function formatPhoneNumber(phone: string): string {
+		const digits = phone.replace(/\D/g, '');
+		const d = digits.length === 11 && digits[0] === '1' ? digits.slice(1) : digits;
+		if (d.length === 10) {
+			return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+		}
+		return phone;
+	}
+
 	const initMap = async (map: google.maps.Map) => {
 		infoWindow = new google.maps.InfoWindow();
 		geocoder = new google.maps.Geocoder();
@@ -160,7 +169,8 @@
 					Number(parentServiceBody.id) > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody.name}</a>)` : '';
 				const websiteUrl = serviceBodyDetails.url.includes('://') ? serviceBodyDetails.url : `https://${serviceBodyDetails.url}`;
 				const websiteLink = `<br>Website: <a href='${websiteUrl}' target='_blank'>${serviceBodyDetails.url}</a>`;
-				const helplineLink = `<br>Helpline: <a href='tel:${serviceBodyDetails.helpline.split('|')[0]}' target='_blank'>${serviceBodyDetails.helpline.split('|')[0]}</a>`;
+				const rawHelpline = serviceBodyDetails.helpline.split('|')[0].trim();
+				const helplineLink = rawHelpline ? `<br>Helpline: <a href='tel:${formatPhoneNumber(rawHelpline)}' target='_blank'>${formatPhoneNumber(rawHelpline)}</a>` : '';
 				const rootServerLink = `<br>Root Server: <a href='${data[0].root_server_uri}' target='_blank'>${data[0].root_server_uri}</a>`;
 				content = `${serviceBodyLink}${parentServiceBodyLink}${websiteLink}${helplineLink}${rootServerLink}`;
 			} else {
