@@ -67,6 +67,10 @@ body {
 	align-items: center;
 }
 
+#criteriaSearch {
+	color-scheme: light;
+}
+
 #criteria {
 	font-size: 20px;
 	border: 1px solid;
