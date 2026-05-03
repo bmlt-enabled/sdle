@@ -162,7 +162,7 @@
 		if (data && data.length > 0) {
 			const serviceBodyDetails = getServiceBodyById(data[0]['service_body_bigint']);
 			const parentServiceBody = serviceBodyDetails && Number(serviceBodyDetails['parent_id']) > 0 ? getServiceBodyById(serviceBodyDetails['parent_id']) : { name: 'no parent', id: -1 };
-			let content = '';
+			let content: string;
 			if (parseInt(data[0].distance_in_miles || '0') < 100 && serviceBodyDetails && parentServiceBody) {
 				const serviceBodyLink = `<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails.name}</a></b>`;
 				const parentServiceBodyLink =
