@@ -84,7 +84,7 @@
 
 				locationSearchDiv.appendChild(autocomplete);
 				autocomplete.addEventListener('gmp-select', async (event) => {
-					const placeEvent = event as PlaceSelectEvent;
+					const placeEvent = event as unknown as PlaceSelectEvent;
 
 					try {
 						const place = placeEvent.placePrediction.toPlace();
