@@ -156,6 +156,17 @@
 		return serviceBodies.find((body) => body.id === id);
 	};
 
+	const rootServerServiceBodiesCache: Record<string, ServiceBody[]> = {};
+
+	const getRootServerServiceBodies = async (rootServerUri: string): Promise<ServiceBody[]> => {
+		if (rootServerServiceBodiesCache[rootServerUri]) return rootServerServiceBodiesCache[rootServerUri];
+		const base = rootServerUri.endsWith('/') ? rootServerUri : `${rootServerUri}/`;
+		const response = await fetch(`${base}client_interface/json/?switcher=GetServiceBodies`);
+		const data: ServiceBody[] = await response.json();
+		rootServerServiceBodiesCache[rootServerUri] = data;
+		return data;
+	};
+
 	const setMapInfo = async (pos: { lat: number; lng: number }) => {
 		infoWindow.setPosition(new google.maps.LatLng(pos.lat, pos.lng));
 		const data = await fetchServiceBodyForCoordinates(pos.lat, pos.lng);
@@ -164,9 +175,14 @@
 			const parentServiceBody = serviceBodyDetails && Number(serviceBodyDetails['parent_id']) > 0 ? getServiceBodyById(serviceBodyDetails['parent_id']) : { name: 'no parent', id: -1 };
 			let content: string;
 			if (parseInt(data[0].distance_in_miles || '0') < 100 && serviceBodyDetails && parentServiceBody) {
-				const serviceBodyLink = `<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails.name}</a></b>`;
+				const rootBodies = await getRootServerServiceBodies(data[0].root_server_uri);
+				const rootId = rootBodies.find((b) => b.name === serviceBodyDetails.name)?.id;
+				const parentRootId = rootBodies.find((b) => b.name === parentServiceBody.name)?.id;
+				const idSuffix = rootId ? ` (${rootId})` : '';
+				const parentIdSuffix = parentRootId ? ` (${parentRootId})` : '';
+				const serviceBodyLink = `<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails.name}</a>${idSuffix}</b>`;
 				const parentServiceBodyLink =
-					Number(parentServiceBody.id) > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody.name}</a>)` : '';
+					Number(parentServiceBody.id) > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody.name}</a>${parentIdSuffix})` : '';
 				const rawUrl = serviceBodyDetails.url.trim();
 				const websiteUrl = rawUrl.includes('://') ? rawUrl : `https://${rawUrl}`;
 				const websiteLink = rawUrl ? `<br>Website: <a href='${websiteUrl}' target='_blank'>${rawUrl}</a>` : '';
