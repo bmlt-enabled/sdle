@@ -69,6 +69,8 @@
 		infoWindow = new google.maps.InfoWindow();
 		geocoder = new google.maps.Geocoder();
 
+		document.addEventListener('click', handleInfoWindowClick);
+
 		if (typeof window !== 'undefined') {
 			try {
 				const autocomplete = new google.maps.places.PlaceAutocompleteElement({});
@@ -167,6 +169,36 @@
 		return data;
 	};
 
+	const escapeHtml = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+	const buildWidgetConfigSection = (homeServer: string, homeId: string | undefined, aggServer: string, aggId: string): string => {
+		const normalize = (u: string) => (u.endsWith('/') ? u : `${u}/`);
+		const home = escapeHtml(normalize(homeServer));
+		const agg = escapeHtml(normalize(aggServer));
+		const hid = homeId ? escapeHtml(homeId) : '';
+		const aid = escapeHtml(aggId);
+		const chip = (val: string, label: string) =>
+			val
+				? `<button type="button" class="copy-chip" data-copy="${val}" title="Click to copy ${label}"><span class="chip-label">${label}</span><span class="chip-value">${val}</span></button>`
+				: `<span class="copy-chip copy-chip-empty"><span class="chip-label">${label}</span><span class="chip-value">—</span></span>`;
+		return `
+<div class="widget-config">
+	<a href="javascript:void(0);" class="widget-config-toggle">Server details ▸</a>
+	<div class="widget-config-body" hidden>
+		<div class="wc-col">
+			<div class="wc-col-title">Home server</div>
+			${chip(home, 'Server URL')}
+			${chip(hid, 'Service Body ID')}
+		</div>
+		<div class="wc-col">
+			<div class="wc-col-title">Aggregator</div>
+			${chip(agg, 'Server URL')}
+			${chip(aid, 'Service Body ID')}
+		</div>
+	</div>
+</div>`;
+	};
+
 	const setMapInfo = async (pos: { lat: number; lng: number }) => {
 		infoWindow.setPosition(new google.maps.LatLng(pos.lat, pos.lng));
 		const data = await fetchServiceBodyForCoordinates(pos.lat, pos.lng);
@@ -177,25 +209,59 @@
 			if (parseInt(data[0].distance_in_miles || '0') < 100 && serviceBodyDetails && parentServiceBody) {
 				const rootBodies = await getRootServerServiceBodies(data[0].root_server_uri);
 				const rootId = rootBodies.find((b) => b.name === serviceBodyDetails.name)?.id;
-				const parentRootId = rootBodies.find((b) => b.name === parentServiceBody.name)?.id;
-				const idSuffix = rootId ? ` (${rootId})` : '';
-				const parentIdSuffix = parentRootId ? ` (${parentRootId})` : '';
-				const serviceBodyLink = `<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails.name}</a>${idSuffix}</b>`;
+				const serviceBodyLink = `<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails.name}</a></b>`;
 				const parentServiceBodyLink =
-					Number(parentServiceBody.id) > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody.name}</a>${parentIdSuffix})` : '';
+					Number(parentServiceBody.id) > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody.name}</a>)` : '';
 				const rawUrl = serviceBodyDetails.url.trim();
 				const websiteUrl = rawUrl.includes('://') ? rawUrl : `https://${rawUrl}`;
 				const websiteLink = rawUrl ? `<br>Website: <a href='${websiteUrl}' target='_blank'>${rawUrl}</a>` : '';
 				const rawHelpline = serviceBodyDetails.helpline.split('|')[0].trim();
 				const helplineLink = rawHelpline ? `<br>Helpline: <a href='tel:${formatPhoneNumber(rawHelpline)}' target='_blank'>${formatPhoneNumber(rawHelpline)}</a>` : '';
 				const rootServerLink = `<br>Root Server: <a href='${data[0].root_server_uri}' target='_blank'>${data[0].root_server_uri}</a>`;
-				content = `${serviceBodyLink}${parentServiceBodyLink}${websiteLink}${helplineLink}${rootServerLink}`;
+				const widgetConfig = buildWidgetConfigSection(data[0].root_server_uri, rootId, root, serviceBodyDetails['id']);
+				content = `${serviceBodyLink}${parentServiceBodyLink}${websiteLink}${helplineLink}${rootServerLink}${widgetConfig}`;
 			} else {
 				content = '<b>Not covered by the BMLT yet.</b>';
 			}
 			infoWindow.setContent(content);
 			infoWindow.open(map);
 			map.setCenter(new google.maps.LatLng(pos.lat, pos.lng));
+		}
+	};
+
+	const handleInfoWindowClick = (e: Event) => {
+		const target = e.target as HTMLElement;
+		const toggle = target.closest('.widget-config-toggle') as HTMLElement | null;
+		if (toggle) {
+			e.preventDefault();
+			const body = toggle.parentElement?.querySelector('.widget-config-body') as HTMLElement | null;
+			if (body) {
+				const isHidden = body.hasAttribute('hidden');
+				if (isHidden) {
+					body.removeAttribute('hidden');
+					toggle.textContent = 'Server details ▾';
+				} else {
+					body.setAttribute('hidden', '');
+					toggle.textContent = 'Server details ▸';
+				}
+			}
+			return;
+		}
+		const chip = target.closest('.copy-chip') as HTMLElement | null;
+		if (chip && chip.dataset.copy) {
+			e.preventDefault();
+			const value = chip.dataset.copy;
+			navigator.clipboard?.writeText(value).then(() => {
+				const valueEl = chip.querySelector('.chip-value') as HTMLElement | null;
+				if (!valueEl) return;
+				const original = valueEl.textContent ?? '';
+				valueEl.textContent = 'copied!';
+				chip.classList.add('copied');
+				setTimeout(() => {
+					valueEl.textContent = original;
+					chip.classList.remove('copied');
+				}, 1200);
+			});
 		}
 	};
 
@@ -481,4 +547,72 @@
 <div class="map-container" bind:this={mapElement}></div>
 
 <style>
+	:global(.widget-config) {
+		margin-top: 8px;
+		padding-top: 6px;
+		border-top: 1px solid #e5e5e5;
+		font-size: 12px;
+	}
+	:global(.widget-config-toggle) {
+		display: inline-block;
+		color: #1a73e8;
+		text-decoration: none;
+		cursor: pointer;
+		user-select: none;
+	}
+	:global(.widget-config-toggle:hover) {
+		text-decoration: underline;
+	}
+	:global(.widget-config-body) {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 10px;
+		margin-top: 6px;
+	}
+	:global(.widget-config-body[hidden]) {
+		display: none;
+	}
+	:global(.wc-col-title) {
+		font-weight: 600;
+		font-size: 11px;
+		text-transform: uppercase;
+		color: #555;
+		margin-bottom: 4px;
+	}
+	:global(.copy-chip) {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		width: 100%;
+		margin-bottom: 4px;
+		padding: 4px 6px;
+		background: #f5f5f5;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		font-family: inherit;
+		font-size: 11px;
+		color: #222;
+		text-align: left;
+		cursor: pointer;
+	}
+	:global(.copy-chip:hover) {
+		background: #ececec;
+	}
+	:global(.copy-chip.copied) {
+		background: #d6f3dc;
+		border-color: #8ed6a2;
+	}
+	:global(.copy-chip-empty) {
+		cursor: default;
+		opacity: 0.6;
+	}
+	:global(.copy-chip .chip-label) {
+		font-size: 10px;
+		font-weight: 600;
+		color: #555;
+	}
+	:global(.copy-chip .chip-value) {
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		word-break: break-all;
+	}
 </style>
