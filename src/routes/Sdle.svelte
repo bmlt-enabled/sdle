@@ -171,16 +171,23 @@
 
 	const escapeHtml = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-	const buildWidgetConfigSection = (homeServer: string, homeId: string | undefined, aggServer: string, aggId: string): string => {
+	interface BodyIds {
+		name: string;
+		homeId: string | undefined;
+		aggId: string;
+	}
+
+	const buildWidgetConfigSection = (homeServer: string, aggServer: string, bodies: BodyIds[]): string => {
 		const normalize = (u: string) => (u.endsWith('/') ? u : `${u}/`);
 		const home = escapeHtml(normalize(homeServer));
 		const agg = escapeHtml(normalize(aggServer));
-		const hid = homeId ? escapeHtml(homeId) : '';
-		const aid = escapeHtml(aggId);
 		const chip = (val: string, label: string) =>
 			val
 				? `<button type="button" class="copy-chip" data-copy="${val}" title="Click to copy ${label}"><span class="chip-label">${label}</span><span class="chip-value">${val}</span></button>`
 				: `<span class="copy-chip copy-chip-empty"><span class="chip-label">${label}</span><span class="chip-value">—</span></span>`;
+		const idChip = (id: string, name: string) => chip(id, `Service Body ID — ${escapeHtml(name)}`);
+		const homeIdChips = bodies.map((b) => idChip(b.homeId ? escapeHtml(b.homeId) : '', b.name)).join('');
+		const aggIdChips = bodies.map((b) => idChip(escapeHtml(b.aggId), b.name)).join('');
 		return `
 <div class="widget-config">
 	<a href="javascript:void(0);" class="widget-config-toggle">Server details ▸</a>
@@ -188,12 +195,12 @@
 		<div class="wc-col">
 			<div class="wc-col-title">Home server</div>
 			${chip(home, 'Server URL')}
-			${chip(hid, 'Service Body ID')}
+			${homeIdChips}
 		</div>
 		<div class="wc-col">
 			<div class="wc-col-title">Aggregator</div>
 			${chip(agg, 'Server URL')}
-			${chip(aid, 'Service Body ID')}
+			${aggIdChips}
 		</div>
 	</div>
 </div>`;
@@ -209,6 +216,7 @@
 			if (parseInt(data[0].distance_in_miles || '0') < 100 && serviceBodyDetails && parentServiceBody) {
 				const rootBodies = await getRootServerServiceBodies(data[0].root_server_uri);
 				const rootId = rootBodies.find((b) => b.name === serviceBodyDetails.name)?.id;
+				const parentRootId = rootBodies.find((b) => b.name === parentServiceBody.name)?.id;
 				const serviceBodyLink = `<b><a href='javascript:window.drawServiceBody(${serviceBodyDetails['id']}, false);'>${serviceBodyDetails.name}</a></b>`;
 				const parentServiceBodyLink =
 					Number(parentServiceBody.id) > -1 ? ` (<a href='javascript:window.drawServiceBody(${serviceBodyDetails['parent_id']}, true);'>${parentServiceBody.name}</a>)` : '';
@@ -218,7 +226,11 @@
 				const rawHelpline = serviceBodyDetails.helpline.split('|')[0].trim();
 				const helplineLink = rawHelpline ? `<br>Helpline: <a href='tel:${formatPhoneNumber(rawHelpline)}' target='_blank'>${formatPhoneNumber(rawHelpline)}</a>` : '';
 				const rootServerLink = `<br>Root Server: <a href='${data[0].root_server_uri}' target='_blank'>${data[0].root_server_uri}</a>`;
-				const widgetConfig = buildWidgetConfigSection(data[0].root_server_uri, rootId, root, serviceBodyDetails['id']);
+				const bodies: BodyIds[] = [{ name: serviceBodyDetails.name, homeId: rootId, aggId: serviceBodyDetails['id'] }];
+				if (Number(parentServiceBody.id) > -1) {
+					bodies.push({ name: parentServiceBody.name, homeId: parentRootId, aggId: String(parentServiceBody.id) });
+				}
+				const widgetConfig = buildWidgetConfigSection(data[0].root_server_uri, root, bodies);
 				content = `${serviceBodyLink}${parentServiceBodyLink}${websiteLink}${helplineLink}${rootServerLink}${widgetConfig}`;
 			} else {
 				content = '<b>Not covered by the BMLT yet.</b>';
