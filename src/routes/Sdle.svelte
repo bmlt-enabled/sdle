@@ -560,17 +560,19 @@
 
 <style>
 	:global(.widget-config) {
-		margin-top: 8px;
-		padding-top: 6px;
-		border-top: 1px solid #e5e5e5;
+		margin-top: 10px;
+		padding-top: 8px;
+		border-top: 1px solid #e5e7eb;
 		font-size: 12px;
 	}
 	:global(.widget-config-toggle) {
 		display: inline-block;
 		color: #1a73e8;
+		font-weight: 600;
 		text-decoration: none;
 		cursor: pointer;
 		user-select: none;
+		letter-spacing: 0.01em;
 	}
 	:global(.widget-config-toggle:hover) {
 		text-decoration: underline;
@@ -579,52 +581,62 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 10px;
-		margin-top: 6px;
+		margin-top: 8px;
 	}
 	:global(.widget-config-body[hidden]) {
 		display: none;
 	}
 	:global(.wc-col-title) {
-		font-weight: 600;
-		font-size: 11px;
+		font-weight: 700;
+		font-size: 10px;
 		text-transform: uppercase;
-		color: #555;
-		margin-bottom: 4px;
+		letter-spacing: 0.06em;
+		color: #5c6471;
+		margin-bottom: 6px;
 	}
 	:global(.copy-chip) {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		width: 100%;
-		margin-bottom: 4px;
-		padding: 4px 6px;
-		background: #f5f5f5;
-		border: 1px solid #ddd;
-		border-radius: 4px;
+		margin-bottom: 5px;
+		padding: 6px 8px;
+		background: #f6f7f9;
+		border: 1px solid #e3e6eb;
+		border-radius: 6px;
 		font-family: inherit;
 		font-size: 11px;
-		color: #222;
+		color: #1c2128;
 		text-align: left;
 		cursor: pointer;
+		transition:
+			background 0.15s ease,
+			border-color 0.15s ease;
 	}
 	:global(.copy-chip:hover) {
-		background: #ececec;
+		background: #eef0f4;
+		border-color: #cdd2d9;
 	}
 	:global(.copy-chip.copied) {
-		background: #d6f3dc;
-		border-color: #8ed6a2;
+		background: #e7f6ec;
+		border-color: #9bd4ad;
 	}
 	:global(.copy-chip-empty) {
 		cursor: default;
-		opacity: 0.6;
+		opacity: 0.55;
 	}
 	:global(.copy-chip .chip-label) {
 		font-size: 10px;
 		font-weight: 600;
-		color: #555;
+		color: #5c6471;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		margin-bottom: 2px;
 	}
 	:global(.copy-chip .chip-value) {
-		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+		font-size: 11px;
 		word-break: break-all;
+		color: #1c2128;
 	}
 </style>

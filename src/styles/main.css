@@ -1,9 +1,34 @@
+:root {
+	--sdle-bg: #f6f7f9;
+	--sdle-surface: #ffffff;
+	--sdle-border: #e3e6eb;
+	--sdle-border-strong: #cdd2d9;
+	--sdle-text: #1c2128;
+	--sdle-muted: #5c6471;
+	--sdle-accent: #1a73e8;
+	--sdle-accent-hover: #1559b8;
+	--sdle-accent-soft: #e8f0fe;
+	--sdle-radius: 6px;
+	--sdle-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+	--sdle-shadow-md: 0 4px 14px rgba(15, 23, 42, 0.1);
+}
+
 html,
 body {
 	margin: 0;
 	height: 100%;
 	width: 100%;
-	font-family: Arial, sans-serif;
+	font-family:
+		'Manrope',
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		sans-serif;
+	font-size: 14px;
+	color: var(--sdle-text);
+	background: var(--sdle-bg);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 .map-container {
@@ -12,18 +37,21 @@ body {
 }
 
 .meeting-marker {
-	background-color: #ffffff;
-	border-radius: 5px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-	color: #333333;
-	max-width: 200px;
+	background-color: var(--sdle-surface);
+	border-radius: 8px;
+	box-shadow: var(--sdle-shadow-md);
+	color: var(--sdle-text);
+	max-width: 220px;
 	position: relative;
-	padding: 10px;
+	padding: 12px 14px;
+	font-size: 13px;
+	line-height: 1.45;
 }
 
 .meeting-marker b {
-	font-size: 1.1em;
-	color: #000000;
+	font-size: 1.05em;
+	font-weight: 600;
+	color: #000;
 }
 
 .meeting-marker .meeting {
@@ -33,12 +61,14 @@ body {
 /* Close Button */
 .close-button {
 	position: absolute;
-	top: -5px;
-	right: 10px;
+	top: 2px;
+	right: 8px;
 	cursor: pointer;
-	color: #888;
-	font-size: 20px;
-	font-weight: bold;
+	color: #98a0ab;
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1;
+	transition: color 0.15s ease;
 }
 
 .close-button:hover {
@@ -65,33 +95,105 @@ body {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
+	gap: 10px 14px;
+	padding: 10px 14px;
+	background: var(--sdle-surface);
+	border-bottom: 1px solid var(--sdle-border);
 }
 
 #criteriaSearch {
 	color-scheme: light;
 }
 
+#autocomplete-box {
+	flex: 1 1 240px;
+	min-width: 200px;
+}
+
 #criteria {
-	font-size: 20px;
-	border: 1px solid;
+	font-size: 14px;
+	border: 1px solid var(--sdle-border-strong);
+	border-radius: var(--sdle-radius);
+	padding: 7px 10px;
 	margin-right: 10px;
 	flex: 1;
+	background: var(--sdle-surface);
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
+#criteria:focus {
+	outline: none;
+	border-color: var(--sdle-accent);
+	box-shadow: 0 0 0 3px var(--sdle-accent-soft);
 }
 
 input[type='button'] {
-	font-size: 20px;
-	border: 1px solid;
-	margin-right: 5px;
-	margin-left: 5px;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+	border: 1px solid var(--sdle-border-strong);
+	border-radius: var(--sdle-radius);
+	padding: 7px 14px;
+	margin-right: 4px;
+	background: var(--sdle-surface);
+	color: var(--sdle-text);
+	cursor: pointer;
+	transition:
+		background 0.15s ease,
+		border-color 0.15s ease,
+		color 0.15s ease,
+		box-shadow 0.15s ease;
+	box-shadow: var(--sdle-shadow-sm);
+}
+
+input[type='button']:hover {
+	background: #f0f2f5;
+	border-color: #b6bcc6;
+}
+
+input[type='button']:active {
+	background: #e6e9ee;
+}
+
+#criteria-button {
+	background: var(--sdle-accent);
+	border-color: var(--sdle-accent);
+	color: #fff;
+}
+
+#criteria-button:hover {
+	background: var(--sdle-accent-hover);
+	border-color: var(--sdle-accent-hover);
+}
+
+#criteria-button:active {
+	background: #114a99;
+}
+
+#criteria-box {
+	display: inline-flex;
+	gap: 6px;
 }
 
 #draw-options,
 #willingness-distance,
 #data-layers-popdensity {
-	margin-right: 10px;
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
+	gap: 6px 10px;
+	color: var(--sdle-muted);
+	font-size: 13px;
+}
+
+#draw-options input[type='radio'],
+#data-layers-popdensity input[type='checkbox'] {
+	accent-color: var(--sdle-accent);
+	cursor: pointer;
+	margin: 0 2px 0 4px;
 }
 
 #draw-options label,
@@ -102,18 +204,69 @@ input[type='button'] {
 	margin-right: 10px;
 }
 
+#willingness {
+	font-family: inherit;
+	font-size: 13px;
+	border: 1px solid var(--sdle-border-strong);
+	border-radius: var(--sdle-radius);
+	padding: 5px 8px;
+	width: 48px;
+	text-align: center;
+	background: var(--sdle-surface);
+	color: var(--sdle-text);
+}
+
+#willingness:focus {
+	outline: none;
+	border-color: var(--sdle-accent);
+	box-shadow: 0 0 0 3px var(--sdle-accent-soft);
+}
+
+select#distance-unit {
+	font-family: inherit;
+	font-size: 13px;
+	border: 1px solid var(--sdle-border-strong);
+	border-radius: var(--sdle-radius);
+	padding: 5px 8px;
+	background: var(--sdle-surface);
+	color: var(--sdle-text);
+	cursor: pointer;
+}
+
+select#distance-unit:focus {
+	outline: none;
+	border-color: var(--sdle-accent);
+	box-shadow: 0 0 0 3px var(--sdle-accent-soft);
+}
+
 .legend {
-	background: #fff;
-	padding: 10px;
-	margin: 5px;
+	background: var(--sdle-surface);
+	padding: 10px 12px;
+	margin: 8px;
 	font-size: 12px;
+	border: 1px solid var(--sdle-border);
+	border-radius: 8px;
+	box-shadow: var(--sdle-shadow-md);
+	color: var(--sdle-text);
+	line-height: 1.5;
+}
+
+.legend b {
+	font-weight: 600;
+}
+
+.legend p {
+	margin: 4px 0;
+	display: flex;
+	align-items: center;
 }
 
 .legend .color {
-	border: 1px solid;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	border-radius: 2px;
 	height: 12px;
 	width: 12px;
-	margin-right: 3px;
+	margin-right: 6px;
 	float: left;
 }
 
@@ -132,22 +285,13 @@ input[type='button'] {
 #data-layers-container {
 	display: flex;
 	align-items: center;
-}
-
-#data-layers-container span {
-	margin-right: 5px;
+	gap: 6px;
 }
 
 #willingness-distance {
 	display: flex;
 	align-items: center;
-}
-
-#willingness-distance input,
-#willingness-distance select {
-	margin-right: 5px;
-	flex: 1;
-	min-width: 0;
+	gap: 6px;
 }
 
 @media (max-width: 480px) {
@@ -162,8 +306,10 @@ input[type='button'] {
 
 	#search {
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: stretch;
 		width: 100%;
+		gap: 8px;
+		padding: 10px 12px;
 	}
 
 	#criteria-box {
@@ -171,6 +317,7 @@ input[type='button'] {
 		align-items: center;
 		width: 100%;
 		flex-wrap: wrap;
+		gap: 6px;
 	}
 
 	#criteria,
@@ -178,13 +325,12 @@ input[type='button'] {
 	#willingness,
 	select#distance-unit {
 		font-size: 16px;
-		width: 100%;
-		margin-bottom: 5px;
 	}
 
 	input[type='button'] {
-		width: 100%;
+		flex: 1;
 		margin-right: 0;
+		padding: 9px 14px;
 	}
 
 	#draw-options {
@@ -198,17 +344,19 @@ input[type='button'] {
 	#data-layers-popdensity label {
 		width: auto;
 		justify-content: flex-start;
-		margin-bottom: 5px;
+		margin-bottom: 0;
 	}
 
 	.legend {
 		font-size: 10px;
-		padding: 5px;
+		padding: 8px;
 	}
 
 	#autocomplete-box {
 		width: 100%;
-		padding: 5px;
+		padding: 0;
+		flex: 0 0 auto;
+		min-width: 0;
 	}
 
 	#criteriaSearch {
